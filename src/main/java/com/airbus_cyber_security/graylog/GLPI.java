@@ -15,6 +15,7 @@ public class GLPI extends AbstractFunction<String> {
 
     public static final String NAME = "GLPI";
     private static final String PARAM = "field";
+    private static final Session session = new Session();
 
     private final ParameterDescriptor<String, String> valueParam = ParameterDescriptor
     		.string(PARAM)
@@ -23,7 +24,15 @@ public class GLPI extends AbstractFunction<String> {
 
     @Override
     public String evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
-    	
+		try {
+			session.setApiURL("http://glpi:8080/glpi/apirest.php");
+			session.setUserToken("wZngFklVWzFXVYOXhogf0J65N4np6U59TBiWjF1p");
+			GETSessionToken(session);
+			GETSearch(session.getApiURL(), session.getUserToken(), session.getSessionToken(), "Computer", "foo1");
+			CloseSession(session.getApiURL(), session.getUserToken(), session.getSessionToken());
+		} catch (IOException e) {
+			System.out.println(e);
+		}
         return "TODO";
     }
     
@@ -37,14 +46,14 @@ public class GLPI extends AbstractFunction<String> {
    	            .build();
    	}
    	
-    public static String GETSessionToken(String apiURL, String userToken) throws IOException {
-        URL urlForGetRequest = new URL(apiURL + "/initSession");
+    public static void GETSessionToken(Session session) throws IOException {
+        URL urlForGetRequest = new URL(session.getApiURL() + "/initSession");
         String readLine = null;
         HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
         connection.setRequestMethod("GET");
         connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Authorization", "user_token " + userToken);
+        connection.setRequestProperty("Authorization", "user_token " + session.getUserToken());
 
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -54,10 +63,7 @@ public class GLPI extends AbstractFunction<String> {
             while ((readLine = in .readLine()) != null) {
                 response.append(readLine);
             } in .close();
-            Token token = new ObjectMapper().readValue(response.toString(), Token.class);
-            return token.getSessionToken();
-        } else {
-            return null;
+            session.setSessionToken(new ObjectMapper().readValue(response.toString(), Session.class).getSessionToken());
         }
     }
 
