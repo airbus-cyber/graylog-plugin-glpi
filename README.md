@@ -14,8 +14,20 @@ and can be configured in your `graylog.conf` file.
 Restart `graylog-server` and you are done.
 
 ## Usage
- 
-TODO
+
+Create a pipeline function like:
+
+```
+rule "function GLPI"
+when
+  has_field("source")
+then
+  let computer_search = GLPI(to_string($message.source), "Computer");
+  let software_search = GLPI(to_string($message.application_name), "Software");
+  set_fields(computer_search, "Computer");
+  set_fields(software_search, "Software");
+end
+```
 
 ## Build
 
