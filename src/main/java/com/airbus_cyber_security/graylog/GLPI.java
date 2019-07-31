@@ -6,9 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -27,7 +25,7 @@ import org.graylog.plugins.pipelineprocessor.ast.functions.ParameterDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GLPI extends AbstractFunction<List> {
+public class GLPI extends AbstractFunction<Map<String, Object>> {
 	Logger LOG = LoggerFactory.getLogger(Function.class);
 
 	public static final String NAME = "GLPI";
@@ -37,16 +35,14 @@ public class GLPI extends AbstractFunction<List> {
 
 	private final ParameterDescriptor<String, String> valueParam = ParameterDescriptor.string(PARAM)
 			.description("A number, negative or positive.").build();
-	
 
 	@Override
-	public List<String> evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
+	public Map<String, Object> evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
 		String param = valueParam.required(functionArgs, evaluationContext);
-		List<String> new_fields = new ArrayList<>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		try {
 			LOG.info("Defining session");
-			session.setApiURL("http://glpi:8080/glpi/apirest.php");
+			session.setApiURL("http://192.168.43.76/glpi/apirest.php");
 			session.setUserToken("wZngFklVWzFXVYOXhogf0J65N4np6U59TBiWjF1p");
 			LOG.info("Getting session token");
 			GETSessionToken(session);
@@ -58,21 +54,15 @@ public class GLPI extends AbstractFunction<List> {
 		} catch (IOException e) {
 			System.out.println(e);
 		}
-		for (Entry<String, Object> entry : response.entrySet()) {
-			new_fields.add((String) entry.getValue());
-		}
-		return new_fields;
+		return response;
 	}
 
-   	@Override
-   	public FunctionDescriptor<List> descriptor() {
-   	    return FunctionDescriptor.<List>builder()
-   	            .name(NAME)
-   	            .description("Returns hexadecimal lower case string representation of the given number. No prefix, optionally left padded with zeros.")
-   	            .params(valueParam)
-   	            .returnType(List.class)
-   	            .build();
-   	}
+	@Override
+	public FunctionDescriptor<Map<String, Object>> descriptor() {
+		return FunctionDescriptor.<Map<String, Object>>builder().name(NAME).description(
+				"Returns hexadecimal lower case string representation of the given number. No prefix, optionally left padded with zeros.")
+				.params(valueParam).returnType((Class<Map<String, Object>>) (Class) Map.class).build();
+	}
 
 	static private Map<String, String> software_translation_matrix = new HashMap<String, String>();
 	static {
