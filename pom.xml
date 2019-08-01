@@ -4,11 +4,18 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<prerequisites>
-		<maven>3.0</maven>
+		<maven>3.1</maven>
 	</prerequisites>
+
+	<parent>
+		<groupId>org.graylog.plugins</groupId>
+		<artifactId>graylog-plugin-web-parent</artifactId>
+		<version>3.0.2</version>
+	</parent>
 
 	<groupId>com.airbus-cyber-security.graylog</groupId>
 	<artifactId>graylog-plugin-glpi</artifactId>
+	<version>0.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>${project.artifactId}</name>
@@ -76,6 +83,18 @@
 			<version>1.1.1</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.google.auto.value</groupId>
+			<artifactId>auto-value</artifactId>
+			<version>${auto-value.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.auto.service</groupId>
+			<artifactId>auto-service</artifactId>
+			<version>${auto-service.version}</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -96,6 +115,15 @@
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -272,5 +300,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<version>0.0.0</version>
 </project>
