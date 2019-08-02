@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
@@ -35,7 +34,7 @@ public class Session {
 		computer_translation_matrix.put("1", "Name");
 		computer_translation_matrix.put("3", "Location");
 		computer_translation_matrix.put("4", "Type");
-		computer_translation_matrix.put("5", "Serial Number");
+		computer_translation_matrix.put("5", "SerialNumber");
 		computer_translation_matrix.put("19", "Date");
 		computer_translation_matrix.put("23", "Manufacturer");
 		computer_translation_matrix.put("31", "Status");
@@ -121,15 +120,15 @@ public class Session {
 				response.append(readLine);
 			}
 			in.close();
-			
+
 			// Interpret JSON and put it in Map
 			JsonReader reader = Json.createReader(new StringReader(response.toString()));
 			JsonObject jsonObject = reader.readObject();
-			JsonArray jsonArray = jsonObject.getValue("/data").asJsonArray();
-			for (JsonValue i : jsonArray) {
-				resultList.putAll((Map<String, Object>) i);
+			for (Entry<String, JsonValue> i : jsonObject.getValue("/data").asJsonArray().get(0).asJsonObject()
+					.entrySet()) {
+				resultList.put(i.getKey(), i.getValue().toString());
 			}
-			
+
 			switch (category) {
 			case "Computer":
 				translation_matrix = computer_translation_matrix;

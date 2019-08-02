@@ -3,6 +3,7 @@ package com.airbus_cyber_security.graylog;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.graylog.plugins.pipelineprocessor.EvaluationContext;
 import org.graylog.plugins.pipelineprocessor.ast.functions.AbstractFunction;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.airbus_cyber_security.graylog.config.GLPIPluginConfiguration;
 import com.google.inject.Inject;
 
-public class GLPI extends AbstractFunction<Map<String, Object>> {
+public class GLPI extends AbstractFunction<String> {
 	Logger LOG = LoggerFactory.getLogger(Function.class);
 
 	public static final String NAME = "GLPI";
@@ -39,35 +40,40 @@ public class GLPI extends AbstractFunction<Map<String, Object>> {
 	}
 
 	@Override
-	public Map<String, Object> evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
+	public String evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
 		String param = valueParam.required(functionArgs, evaluationContext);
 		String type = typeParam.required(functionArgs, evaluationContext);
+		String result = "";
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		try {
 			GLPIPluginConfiguration config = clusterConfig.get(GLPIPluginConfiguration.class);
 			if (config == null) {
 				LOG.error("Config is needed, please fill it");
-				return response;
+				return "";
 			}
 			session.setApiURL(config.glpiUrl());
 			session.setUserToken(config.apiToken());
-			LOG.info("GLPISession URL: " + session.getApiURL() + " Token: " + session.getUserToken());
 			session.GETSessionToken();
 			LOG.info("GLPI: Searching into " + type + "for param: " + param);
 			response.putAll(session.GETSearch(type, param));
 			LOG.info("GLPI: " + response.toString());
+			for (Entry<String, Object> entry : response.entrySet()) {
+				result += entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ";
+			}
+			result = result.substring(0, result.length() - 1).replace("\"", "");
+			LOG.info(result);
 			session.CloseSession();
 		} catch (IOException e) {
 			LOG.error(e.toString());
 		}
-		return response;
+		return result;
 	}
 
 	@Override
-	public FunctionDescriptor<Map<String, Object>> descriptor() {
-		return FunctionDescriptor.<Map<String, Object>>builder().name(NAME)
+	public FunctionDescriptor<String> descriptor() {
+		return FunctionDescriptor.<String>builder().name(NAME)
 				.description("Returns Map of field return by the GLPI API").params(valueParam, typeParam)
-				.returnType((Class<Map<String, Object>>) (Class) Map.class).build();
+				.returnType(String.class).build();
 	}
 }

@@ -15,17 +15,16 @@ Restart `graylog-server` and you are done.
 
 ## Usage
 
-Create a pipeline function like:
+To search into the Computer category for the source field, create a pipeline function like:
 
 ```
-rule "function GLPI"
+rule "GLPIComputer"
 when
   has_field("source")
 then
-  let computer_search = GLPI(to_string($message.source), "Computer");
-  let software_search = GLPI(to_string($message.application_name), "Software");
-  set_fields(computer_search, "Computer");
-  set_fields(software_search, "Software");
+  let computer = GLPI(to_string($message.source), "Computer");
+  let computer_fieds = key_value(computer);
+  set_fields(computer_fieds, "Computer-");
 end
 ```
 
