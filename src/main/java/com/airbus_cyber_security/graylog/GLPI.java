@@ -44,7 +44,8 @@ public class GLPI extends AbstractFunction<String> {
 		String param = valueParam.required(functionArgs, evaluationContext);
 		String type = typeParam.required(functionArgs, evaluationContext);
 		String result = "";
-		Map<String, Object> response = new HashMap<String, Object>();
+		StringBuilder bld = new StringBuilder();
+		Map<String, Object> response = new HashMap<>();
 
 		try {
 			GLPIPluginConfiguration config = clusterConfig.get(GLPIPluginConfiguration.class);
@@ -54,16 +55,20 @@ public class GLPI extends AbstractFunction<String> {
 			}
 			session.setApiURL(config.glpiUrl());
 			session.setUserToken(config.apiToken());
-			session.GETSessionToken();
-			LOG.info("GLPI: Searching into " + type + "for param: " + param);
-			response.putAll(session.GETSearch(type, param));
-			LOG.info("GLPI: " + response.toString());
+			session.getSessionTokenFromAPI();
+			
+			LOG.info("GLPI: Searching into {} for param: {}", type, param);
+			response.putAll(session.getSearchFromAPI(type, param));
+			LOG.info("GLPI: {}", response.toString());
+			
 			for (Entry<String, Object> entry : response.entrySet()) {
-				result += entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ";
+				bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
 			}
+			result = bld.toString();
 			result = result.substring(0, result.length() - 1).replace("\"", "");
 			LOG.info(result);
-			session.CloseSession();
+			
+			session.closeSession();
 		} catch (IOException e) {
 			LOG.error(e.toString());
 		}
