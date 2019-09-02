@@ -56,6 +56,7 @@ public class GLPI extends AbstractFunction<String> {
 			session.setApiURL(config.glpiUrl());
 			session.setUserToken(config.apiToken());
 			session.getSessionTokenFromAPI();
+			LOG.info("GLPI: API URL is {} with token {}", config.glpiUrl(), config.apiToken());
 			
 			LOG.info("GLPI: Searching into {} for param: {}", type, param);
 			response.putAll(session.getSearchFromAPI(type, param));

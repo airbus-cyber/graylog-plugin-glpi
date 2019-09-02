@@ -208,7 +208,7 @@ public class Session {
 		computerTranslationMatrix.put("42", "UpdateSource");
 		computerTranslationMatrix.put("43", "Serialnumber");
 		computerTranslationMatrix.put("44", "ProductID");
-		computerTranslationMatrix.put("45", "Name");
+		computerTranslationMatrix.put("45", "OSName");
 		computerTranslationMatrix.put("46", "Version");
 		computerTranslationMatrix.put("47", "UUID");
 		computerTranslationMatrix.put("48", "Kernelversion");
@@ -349,7 +349,9 @@ public class Session {
 		connection.setRequestProperty("Content-Type", "application/json");
 		connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
 
+		LOG.info("GLPI: Getting session token");
 		int responseCode = connection.getResponseCode();
+		LOG.info("GLPI: session token HTTP request response: {}", responseCode);
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			StringBuffer response = new StringBuffer();
@@ -360,6 +362,7 @@ public class Session {
 			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
 				JsonObject jsonObject = reader.readObject();
 				this.setSessionToken(jsonObject.get("session_token").toString().replaceAll("\"", ""));
+				LOG.info("GLPI: session token: {}", sessionToken);
 			} catch (Exception e) {
 				LOG.error("Impossible to parse {} to get session token", response);
 			}
@@ -380,6 +383,7 @@ public class Session {
 		connection.setRequestProperty("Session-Token", this.getSessionToken());
 
 		int responseCode = connection.getResponseCode();
+		LOG.info("GLPI: Search HTTP request response: {}", responseCode);
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			// Get the API response
 			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -388,11 +392,13 @@ public class Session {
 				response.append(readLine);
 			}
 			in.close();
+			
 			// Interpret JSON and put it in Map
 			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
 				JsonObject jsonObject = reader.readObject();
 				for (Entry<String, JsonValue> i : jsonObject.getValue("/data").asJsonArray().get(0).asJsonObject()
 						.entrySet()) {
+					LOG.info("GLPI: search key {} => search response: {}", i.getKey(), i.getValue());
 					resultList.put(i.getKey(), i.getValue().toString());
 				}
 			} catch (Exception e) {
@@ -413,6 +419,7 @@ public class Session {
 			default:
 				break;
 			}
+			LOG.info("GLPI: translation matrix used {}TranslationMatrix", category);
 			return mappingField(resultList, translation_matrix);
 		} else {
 			return blankList;
@@ -420,6 +427,7 @@ public class Session {
 	}
 
 	public boolean closeSession() throws IOException {
+		LOG.info("GLPI: closing session");
 		URL urlForGetRequest = new URL(this.getApiURL() + "/killSession");
 		HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
@@ -429,6 +437,7 @@ public class Session {
 		connection.setRequestProperty("Session-Token", this.getSessionToken());
 
 		int responseCode = connection.getResponseCode();
+		LOG.info("GLPI: closing session HTTP request response: {}", responseCode);
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			return true;
 		}
