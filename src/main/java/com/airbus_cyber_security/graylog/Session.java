@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,6 +19,8 @@ import javax.json.JsonValue;
 import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import kafka.log.Log;
 
 public class Session {
 	private String apiURL;
@@ -328,9 +331,15 @@ public class Session {
 		this.apiURL = apiURL;
 	}
 
-	public static Map<String, Object> mappingField(Map<String, Object> map, Map<String, String> translation) {
+	public Map<String, Object> mappingField(Map<String, Object> map, Map<String, String> translation, String filter) {
+		String[] filterArray = filter.toLowerCase().split(",");
 		Map<String, Object> mappedMap = new HashMap<>(map.size());
 		for (Entry<String, Object> entry : map.entrySet()) {
+			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)) {
+				LOG.info("The key {} is not into filter {}", translation.get(entry.getKey()), filter);
+				continue;
+			}
+			LOG.info("The key {} is into filter {}, translate it", translation.get(entry.getKey()), filter);
 			if (translation.get(entry.getKey()) != null) {
 				mappedMap.put(translation.get(entry.getKey()), entry.getValue());
 			} else {
@@ -369,7 +378,7 @@ public class Session {
 		}
 	}
 
-	public Map<String, Object> getSearchFromAPI(String category, String search) throws IOException {
+	public Map<String, Object> getSearchFromAPI(String category, String search, String filter) throws IOException {
 		Map<String, Object> resultList = new HashMap<>();
 		Map<String, Object> blankList = new HashMap<>();
 		Map<String, String> translation_matrix = null;
@@ -420,7 +429,7 @@ public class Session {
 				break;
 			}
 			LOG.info("GLPI: translation matrix used {}TranslationMatrix", category);
-			return mappingField(resultList, translation_matrix);
+			return mappingField(resultList, translation_matrix, filter);
 		} else {
 			return blankList;
 		}

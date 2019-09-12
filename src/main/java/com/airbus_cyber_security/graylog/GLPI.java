@@ -22,16 +22,20 @@ public class GLPI extends AbstractFunction<String> {
 	Logger LOG = LoggerFactory.getLogger(Function.class);
 
 	public static final String NAME = "GLPI";
-	private static final String PARAM = "field";
+	private static final String QUERY = "query";
 	private static final String TYPE = "type";
+	private static final String FILTER = "filter";
 
 	private ClusterConfigService clusterConfig;
 	private Session session = new Session();
 
-	private final ParameterDescriptor<String, String> valueParam = ParameterDescriptor.string(PARAM)
-			.description("The field you want to submit into GLPI API.").build();
+	private final ParameterDescriptor<String, String> queryParam = ParameterDescriptor.string(QUERY)
+			.description("The query you want to submit into GLPI API.").build();
 	private final ParameterDescriptor<String, String> typeParam = ParameterDescriptor.string(TYPE)
 			.description("The category of the field you want to submit into GLPI API. Can be Computer, Software, ...")
+			.build();
+	private final ParameterDescriptor<String, String> filterParam = ParameterDescriptor.string(FILTER)
+			.description("The fields list (comma-separated) you want to be returned")
 			.build();
 
 	@Inject
@@ -41,8 +45,9 @@ public class GLPI extends AbstractFunction<String> {
 
 	@Override
 	public String evaluate(FunctionArgs functionArgs, EvaluationContext evaluationContext) {
-		String param = valueParam.required(functionArgs, evaluationContext);
+		String query = queryParam.required(functionArgs, evaluationContext);
 		String type = typeParam.required(functionArgs, evaluationContext);
+		String filter = filterParam.required(functionArgs, evaluationContext);
 		String result = "";
 		StringBuilder bld = new StringBuilder();
 		Map<String, Object> response = new HashMap<>();
@@ -58,9 +63,9 @@ public class GLPI extends AbstractFunction<String> {
 			session.getSessionTokenFromAPI();
 			LOG.info("GLPI: API URL is {} with token {}", config.glpiUrl(), config.apiToken());
 			
-			LOG.info("GLPI: Searching into {} for param: {}", type, param);
-			response.putAll(session.getSearchFromAPI(type, param));
-			LOG.info("GLPI: {}", response.toString());
+			LOG.info("GLPI: Searching into {} for param: {} with filter {}", type, query, filter);
+			response.putAll(session.getSearchFromAPI(type, query, filter));
+			LOG.info("GLPI: {}", response);
 			
 			for (Entry<String, Object> entry : response.entrySet()) {
 				bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
@@ -79,7 +84,7 @@ public class GLPI extends AbstractFunction<String> {
 	@Override
 	public FunctionDescriptor<String> descriptor() {
 		return FunctionDescriptor.<String>builder().name(NAME)
-				.description("Returns Map of field return by the GLPI API").params(valueParam, typeParam)
+				.description("Returns key=value string of field from the filter return by the GLPI API").params(queryParam, typeParam, filterParam)
 				.returnType(String.class).build();
 	}
 }

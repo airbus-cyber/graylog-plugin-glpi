@@ -41,7 +41,7 @@ public class GLPIMetaData implements PluginMetaData {
 
     @Override
     public String getDescription() {
-        return "TODO";
+        return "Plugin to add pipeline functions to request GLPI API";
     }
 
     @Override
