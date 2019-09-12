@@ -20,8 +20,6 @@ import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import kafka.log.Log;
-
 public class Session {
 	private String apiURL;
 	private String userToken;
@@ -336,10 +334,10 @@ public class Session {
 		Map<String, Object> mappedMap = new HashMap<>(map.size());
 		for (Entry<String, Object> entry : map.entrySet()) {
 			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)) {
-				LOG.info("The key {} is not into filter {}", translation.get(entry.getKey()), filter);
+				LOG.info("GLPI: The key {} is not into filter {}", translation.get(entry.getKey()), filter);
 				continue;
 			}
-			LOG.info("The key {} is into filter {}, translate it", translation.get(entry.getKey()), filter);
+			LOG.info("GLPI: The key {} is into filter {}, translate it", translation.get(entry.getKey()), filter);
 			if (translation.get(entry.getKey()) != null) {
 				mappedMap.put(translation.get(entry.getKey()), entry.getValue());
 			} else {
@@ -373,7 +371,7 @@ public class Session {
 				this.setSessionToken(jsonObject.get("session_token").toString().replaceAll("\"", ""));
 				LOG.info("GLPI: session token: {}", sessionToken);
 			} catch (Exception e) {
-				LOG.error("Impossible to parse {} to get session token", response);
+				LOG.error("GLPI: Impossible to parse {} to get session token", response);
 			}
 		}
 	}
@@ -381,8 +379,11 @@ public class Session {
 	public Map<String, Object> getSearchFromAPI(String category, String search, String filter) throws IOException {
 		Map<String, Object> resultList = new HashMap<>();
 		Map<String, Object> blankList = new HashMap<>();
-		Map<String, String> translation_matrix = null;
-		URL urlForGetRequest = new URL(this.getApiURL() + "/search/" + category + "?search=" + search);
+		Map<String, String> translationMatrix = null;
+		URL urlForGetRequest = new URL(this.getApiURL() + "/search/" + category
+				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" 
+				+ search);
+		LOG.info("GLPI: request URL: {}", urlForGetRequest);
 		String readLine = null;
 		HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
@@ -402,6 +403,7 @@ public class Session {
 			}
 			in.close();
 			
+			LOG.info("GLPI: Raw response {}", response);
 			// Interpret JSON and put it in Map
 			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
 				JsonObject jsonObject = reader.readObject();
@@ -411,25 +413,26 @@ public class Session {
 					resultList.put(i.getKey(), i.getValue().toString());
 				}
 			} catch (Exception e) {
-				LOG.error("Impossible to parse {} into json", response);
+				LOG.error("GLPI: Impossible to parse {} into json", response);
 				return blankList;
 			}
 
 			switch (category) {
 			case "Computer":
-				translation_matrix = computerTranslationMatrix;
+				translationMatrix = computerTranslationMatrix;
 				break;
 			case "Software":
-				translation_matrix = softwareTranslationMatrix;
+				translationMatrix = softwareTranslationMatrix;
 				break;
 			case "User":
-				translation_matrix = userTranslationMatrix;
+				translationMatrix = userTranslationMatrix;
 				break;
 			default:
-				break;
+				LOG.warn("GLPI: Unsupported category: {}", category);
+				return blankList;
 			}
-			LOG.info("GLPI: translation matrix used {}TranslationMatrix", category);
-			return mappingField(resultList, translation_matrix, filter);
+			LOG.info("GLPI: translation matrix used {}", category);
+			return mappingField(resultList, translationMatrix, filter);
 		} else {
 			return blankList;
 		}

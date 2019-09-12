@@ -65,16 +65,18 @@ public class GLPI extends AbstractFunction<String> {
 			
 			LOG.info("GLPI: Searching into {} for param: {} with filter {}", type, query, filter);
 			response.putAll(session.getSearchFromAPI(type, query, filter));
-			LOG.info("GLPI: {}", response);
+			LOG.info("GLPI: Filtered API response {}", response);
+			session.closeSession();
+			if (response.isEmpty()) {
+				return "";
+			}
 			
 			for (Entry<String, Object> entry : response.entrySet()) {
 				bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
 			}
 			result = bld.toString();
 			result = result.substring(0, result.length() - 1).replace("\"", "");
-			LOG.info(result);
-			
-			session.closeSession();
+			LOG.info("GLPI: Result {}", result);
 		} catch (IOException e) {
 			LOG.error(e.toString());
 		}
