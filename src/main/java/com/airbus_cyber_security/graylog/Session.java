@@ -304,6 +304,30 @@ public class Session {
 		computerTranslationMatrix.put("998", "Latitude");
 		computerTranslationMatrix.put("999", "Longitude");
 	};
+	
+	protected static Map<String, String> getUserTranslationMatrix() {
+		return userTranslationMatrix;
+	}
+
+	protected static void setUserTranslationMatrix(Map<String, String> userTranslationMatrix) {
+		Session.userTranslationMatrix = userTranslationMatrix;
+	}
+
+	protected static Map<String, String> getSoftwareTranslationMatrix() {
+		return softwareTranslationMatrix;
+	}
+
+	protected static void setSoftwareTranslationMatrix(Map<String, String> softwareTranslationMatrix) {
+		Session.softwareTranslationMatrix = softwareTranslationMatrix;
+	}
+
+	protected static Map<String, String> getComputerTranslationMatrix() {
+		return computerTranslationMatrix;
+	}
+
+	protected static void setComputerTranslationMatrix(Map<String, String> computerTranslationMatrix) {
+		Session.computerTranslationMatrix = computerTranslationMatrix;
+	}
 
 	public String getSessionToken() {
 		return sessionToken;
@@ -332,8 +356,10 @@ public class Session {
 	public Map<String, Object> mappingField(Map<String, Object> map, Map<String, String> translation, String filter) {
 		String[] filterArray = filter.toLowerCase().split(",");
 		Map<String, Object> mappedMap = new HashMap<>(map.size());
+		
 		for (Entry<String, Object> entry : map.entrySet()) {
-			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)) {
+			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals) 
+					&& !filter.equals("")) {
 				LOG.info("GLPI: The key {} is not into filter {}", translation.get(entry.getKey()), filter);
 				continue;
 			}
