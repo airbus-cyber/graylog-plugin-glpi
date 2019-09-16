@@ -10,9 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SessionTest {
-
+	
+	private Session session;
+	
 	@Before
 	public void setUp() throws Exception {
+		session = new Session();
 	}
 
 	@After
@@ -21,7 +24,6 @@ public class SessionTest {
 
 	@Test
 	public void mappingFieldWithoutFilterTest() {
-		Session session = new Session();
 		String filter = "";
 		Map<String, Object> actual = new HashMap<>();
 		Map<String, Object> expected = new HashMap<>();

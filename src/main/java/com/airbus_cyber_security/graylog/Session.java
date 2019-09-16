@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -304,7 +305,7 @@ public class Session {
 		computerTranslationMatrix.put("998", "Latitude");
 		computerTranslationMatrix.put("999", "Longitude");
 	};
-	
+
 	protected static Map<String, String> getUserTranslationMatrix() {
 		return userTranslationMatrix;
 	}
@@ -356,9 +357,9 @@ public class Session {
 	public Map<String, Object> mappingField(Map<String, Object> map, Map<String, String> translation, String filter) {
 		String[] filterArray = filter.toLowerCase().split(",");
 		Map<String, Object> mappedMap = new HashMap<>(map.size());
-		
+
 		for (Entry<String, Object> entry : map.entrySet()) {
-			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals) 
+			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)
 					&& !filter.equals("")) {
 				LOG.info("GLPI: The key {} is not into filter {}", translation.get(entry.getKey()), filter);
 				continue;
@@ -373,14 +374,29 @@ public class Session {
 		return mappedMap;
 	}
 
-	public void getSessionTokenFromAPI() throws IOException {
-		URL urlForGetRequest = new URL(this.getApiURL() + "/initSession");
-		String readLine = null;
-		HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
+	public HttpURLConnection connectToURL(String url) {
+		URL urlForGetRequest;
+		HttpURLConnection connection;
+		try {
+			urlForGetRequest = new URL(url);
+			connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
+			return connection;
+		} catch (MalformedURLException e) {
+			LOG.error("Malformated URL: {}", url);
+		} catch (IOException e) {
+			LOG.error("Error trying to connect to {}", url);
+			LOG.error(e.toString());
+		}
+		return null;
+	}
+
+	public void getSessionTokenFromAPI() throws IOException {
+		String readLine = null;
+		HttpURLConnection connection = connectToURL(this.getApiURL() + "/initSession");
 
 		LOG.info("GLPI: Getting session token");
 		int responseCode = connection.getResponseCode();
@@ -406,16 +422,12 @@ public class Session {
 		Map<String, Object> resultList = new HashMap<>();
 		Map<String, Object> blankList = new HashMap<>();
 		Map<String, String> translationMatrix = null;
-		URL urlForGetRequest = new URL(this.getApiURL() + "/search/" + category
-				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" 
-				+ search);
-		LOG.info("GLPI: request URL: {}", urlForGetRequest);
+		String searchURL = this.getApiURL() + "/search/" + category
+				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
 		String readLine = null;
-		HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
+		LOG.info("GLPI: request URL: {}", searchURL);
+		HttpURLConnection connection = connectToURL(searchURL);
 		connection.setRequestProperty("Session-Token", this.getSessionToken());
 
 		int responseCode = connection.getResponseCode();
@@ -428,8 +440,8 @@ public class Session {
 				response.append(readLine);
 			}
 			in.close();
-			
 			LOG.info("GLPI: Raw response {}", response);
+
 			// Interpret JSON and put it in Map
 			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
 				JsonObject jsonObject = reader.readObject();
@@ -465,15 +477,10 @@ public class Session {
 	}
 
 	public boolean closeSession() throws IOException {
-		LOG.info("GLPI: closing session");
-		URL urlForGetRequest = new URL(this.getApiURL() + "/killSession");
-		HttpURLConnection connection = (HttpURLConnection) urlForGetRequest.openConnection();
-
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Content-Type", "application/json");
-		connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
+		HttpURLConnection connection = connectToURL(this.getApiURL() + "/killSession");
 		connection.setRequestProperty("Session-Token", this.getSessionToken());
 
+		LOG.info("GLPI: closing session");
 		int responseCode = connection.getResponseCode();
 		LOG.info("GLPI: closing session HTTP request response: {}", responseCode);
 		if (responseCode == HttpURLConnection.HTTP_OK) {
