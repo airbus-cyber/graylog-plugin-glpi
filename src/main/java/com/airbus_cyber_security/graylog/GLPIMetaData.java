@@ -1,12 +1,12 @@
 package com.airbus_cyber_security.graylog;
 
-import org.graylog2.plugin.PluginMetaData;
-import org.graylog2.plugin.ServerStatus;
-import org.graylog2.plugin.Version;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.Set;
+
+import org.graylog2.plugin.PluginMetaData;
+import org.graylog2.plugin.ServerStatus;
+import org.graylog2.plugin.Version;
 
 /**
  * Implement the PluginMetaData interface here.

@@ -1,13 +1,15 @@
 package com.airbus_cyber_security.graylog;
 
+import java.util.Collections;
+import java.util.Set;
+
+import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
 import org.graylog2.plugin.PluginConfigBean;
 import org.graylog2.plugin.PluginModule;
-import java.util.Set;
+
 import com.google.inject.Binder;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.MapBinder;
-import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
-import java.util.Collections;
 
 public class GLPIModule extends PluginModule {
 	/**

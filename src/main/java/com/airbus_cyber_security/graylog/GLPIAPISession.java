@@ -1,12 +1,6 @@
 package com.airbus_cyber_security.graylog;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +15,7 @@ import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Session {
+public class GLPIAPISession {
 	private String apiURL;
 	private String userToken;
 	private String sessionToken;
@@ -311,7 +305,7 @@ public class Session {
 	}
 
 	protected static void setUserTranslationMatrix(Map<String, String> userTranslationMatrix) {
-		Session.userTranslationMatrix = userTranslationMatrix;
+		GLPIAPISession.userTranslationMatrix = userTranslationMatrix;
 	}
 
 	protected static Map<String, String> getSoftwareTranslationMatrix() {
@@ -319,7 +313,7 @@ public class Session {
 	}
 
 	protected static void setSoftwareTranslationMatrix(Map<String, String> softwareTranslationMatrix) {
-		Session.softwareTranslationMatrix = softwareTranslationMatrix;
+		GLPIAPISession.softwareTranslationMatrix = softwareTranslationMatrix;
 	}
 
 	protected static Map<String, String> getComputerTranslationMatrix() {
@@ -327,7 +321,7 @@ public class Session {
 	}
 
 	protected static void setComputerTranslationMatrix(Map<String, String> computerTranslationMatrix) {
-		Session.computerTranslationMatrix = computerTranslationMatrix;
+		GLPIAPISession.computerTranslationMatrix = computerTranslationMatrix;
 	}
 
 	public String getSessionToken() {
@@ -374,118 +368,63 @@ public class Session {
 		return mappedMap;
 	}
 
-	public HttpURLConnection connectToURL(String url) {
-		URL urlForGetRequest;
-		HttpURLConnection connection;
-		try {
-			urlForGetRequest = new URL(url);
-			connection = (HttpURLConnection) urlForGetRequest.openConnection();
-
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("Authorization", "user_token " + this.getUserToken());
-			return connection;
-		} catch (MalformedURLException e) {
-			LOG.error("Malformated URL: {}", url);
-		} catch (IOException e) {
-			LOG.error("Error trying to connect to {}", url);
-			LOG.error(e.toString());
-		}
-		return null;
-	}
-
-	public void getSessionTokenFromAPI() throws IOException {
-		String readLine = null;
-		HttpURLConnection connection = connectToURL(this.getApiURL() + "/initSession");
-
+	public String getSessionTokenFromAPI(GLPIConnection connection) {
 		LOG.info("GLPI: Getting session token");
-		int responseCode = connection.getResponseCode();
-		LOG.info("GLPI: session token HTTP request response: {}", responseCode);
-		if (responseCode == HttpURLConnection.HTTP_OK) {
-			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			StringBuffer response = new StringBuffer();
-			while ((readLine = in.readLine()) != null) {
-				response.append(readLine);
-			}
-			in.close();
-			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
-				JsonObject jsonObject = reader.readObject();
-				this.setSessionToken(jsonObject.get("session_token").toString().replaceAll("\"", ""));
-				LOG.info("GLPI: session token: {}", sessionToken);
-			} catch (Exception e) {
-				LOG.error("GLPI: Impossible to parse {} to get session token", response);
-			}
+		connection.connectToURL(this.getApiURL() + "/initSession", this.userToken);
+		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
+			JsonObject jsonObject = reader.readObject();
+			sessionToken = jsonObject.get("session_token").toString().replaceAll("\"", "");
+			LOG.info("GLPI: Session token: {}", sessionToken);
+			return sessionToken;
+		} catch (Exception e) {
+			LOG.error("GLPI: Impossible to parse {} to get session token", connection.getResponseStream());
 		}
+		return "";
 	}
 
-	public Map<String, Object> getSearchFromAPI(String category, String search, String filter) throws IOException {
+	public Map<String, Object> getSearchFromAPI(GLPIConnection connection, String category, String search, String filter) {
 		Map<String, Object> resultList = new HashMap<>();
 		Map<String, Object> blankList = new HashMap<>();
 		Map<String, String> translationMatrix = null;
 		String searchURL = this.getApiURL() + "/search/" + category
 				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
-		String readLine = null;
 
 		LOG.info("GLPI: request URL: {}", searchURL);
-		HttpURLConnection connection = connectToURL(searchURL);
-		connection.setRequestProperty("Session-Token", this.getSessionToken());
+		connection.connectToURL(searchURL, this.userToken, this.sessionToken);
 
-		int responseCode = connection.getResponseCode();
-		LOG.info("GLPI: Search HTTP request response: {}", responseCode);
-		if (responseCode == HttpURLConnection.HTTP_OK) {
-			// Get the API response
-			BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			StringBuffer response = new StringBuffer();
-			while ((readLine = in.readLine()) != null) {
-				response.append(readLine);
+		// Interpret JSON and put it in Map
+		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
+			JsonObject jsonObject = reader.readObject();
+			for (Entry<String, JsonValue> i : jsonObject.getValue("/data").asJsonArray().get(0).asJsonObject()
+					.entrySet()) {
+				LOG.info("GLPI: search key {} => search response: {}", i.getKey(), i.getValue());
+				resultList.put(i.getKey(), i.getValue().toString());
 			}
-			in.close();
-			LOG.info("GLPI: Raw response {}", response);
-
-			// Interpret JSON and put it in Map
-			try (JsonReader reader = Json.createReader(new StringReader(response.toString()))) {
-				JsonObject jsonObject = reader.readObject();
-				for (Entry<String, JsonValue> i : jsonObject.getValue("/data").asJsonArray().get(0).asJsonObject()
-						.entrySet()) {
-					LOG.info("GLPI: search key {} => search response: {}", i.getKey(), i.getValue());
-					resultList.put(i.getKey(), i.getValue().toString());
-				}
-			} catch (Exception e) {
-				LOG.error("GLPI: Impossible to parse {} into json", response);
-				return blankList;
-			}
-
-			switch (category) {
-			case "Computer":
-				translationMatrix = computerTranslationMatrix;
-				break;
-			case "Software":
-				translationMatrix = softwareTranslationMatrix;
-				break;
-			case "User":
-				translationMatrix = userTranslationMatrix;
-				break;
-			default:
-				LOG.warn("GLPI: Unsupported category: {}", category);
-				return blankList;
-			}
-			LOG.info("GLPI: translation matrix used {}", category);
-			return mappingField(resultList, translationMatrix, filter);
-		} else {
+		} catch (Exception e) {
+			LOG.error("GLPI: Impossible to parse {} into json", connection.getResponseStream());
 			return blankList;
 		}
+
+		switch (category) {
+		case "Computer":
+			translationMatrix = computerTranslationMatrix;
+			break;
+		case "Software":
+			translationMatrix = softwareTranslationMatrix;
+			break;
+		case "User":
+			translationMatrix = userTranslationMatrix;
+			break;
+		default:
+			LOG.warn("GLPI: Unsupported category: {}", category);
+			return blankList;
+		}
+		LOG.info("GLPI: translation matrix used {}", category);
+		return mappingField(resultList, translationMatrix, filter);
 	}
 
-	public boolean closeSession() throws IOException {
-		HttpURLConnection connection = connectToURL(this.getApiURL() + "/killSession");
-		connection.setRequestProperty("Session-Token", this.getSessionToken());
-
+	public void closeSession(GLPIConnection connection) {
 		LOG.info("GLPI: closing session");
-		int responseCode = connection.getResponseCode();
-		LOG.info("GLPI: closing session HTTP request response: {}", responseCode);
-		if (responseCode == HttpURLConnection.HTTP_OK) {
-			return true;
-		}
-		return false;
+		connection.connectToURL(this.getApiURL() + "/killSession", this.userToken, this.sessionToken);
 	}
 }

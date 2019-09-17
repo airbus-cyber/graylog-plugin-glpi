@@ -1,6 +1,5 @@
 package com.airbus_cyber_security.graylog;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,7 +26,7 @@ public class GLPI extends AbstractFunction<String> {
 	private static final String FILTER = "filter";
 
 	private ClusterConfigService clusterConfig;
-	private Session session = new Session();
+	private GLPIAPISession session = new GLPIAPISession();
 
 	private final ParameterDescriptor<String, String> queryParam = ParameterDescriptor.string(QUERY)
 			.description("The query you want to submit into GLPI API.").build();
@@ -35,8 +34,7 @@ public class GLPI extends AbstractFunction<String> {
 			.description("The category of the field you want to submit into GLPI API. Can be Computer, Software, ...")
 			.build();
 	private final ParameterDescriptor<String, String> filterParam = ParameterDescriptor.string(FILTER)
-			.description("The fields list (comma-separated) you want to be returned")
-			.build();
+			.description("The fields list (comma-separated) you want to be returned").build();
 
 	@Inject
 	public GLPI(final ClusterConfigService clusterConfigService) {
@@ -49,44 +47,51 @@ public class GLPI extends AbstractFunction<String> {
 		String type = typeParam.required(functionArgs, evaluationContext);
 		String filter = filterParam.required(functionArgs, evaluationContext);
 		String result = "";
+		String sessionToken;
 		StringBuilder bld = new StringBuilder();
 		Map<String, Object> response = new HashMap<>();
+		GLPIConnection connection = new GLPIConnection();
 
-		try {
-			GLPIPluginConfiguration config = clusterConfig.get(GLPIPluginConfiguration.class);
-			if (config == null) {
-				LOG.error("Config is needed, please fill it");
-				return "";
-			}
-			session.setApiURL(config.glpiUrl());
-			session.setUserToken(config.apiToken());
-			session.getSessionTokenFromAPI();
-			LOG.info("GLPI: API URL is {} with token {}", config.glpiUrl(), config.apiToken());
-			
-			LOG.info("GLPI: Searching into {} for param: {} with filter {}", type, query, filter);
-			response.putAll(session.getSearchFromAPI(type, query, filter));
-			LOG.info("GLPI: Filtered API response {}", response);
-			session.closeSession();
-			if (response.isEmpty()) {
-				return "";
-			}
-			
-			for (Entry<String, Object> entry : response.entrySet()) {
-				bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
-			}
-			result = bld.toString();
-			result = result.substring(0, result.length() - 1).replace("\"", "");
-			LOG.info("GLPI: Result {}", result);
-		} catch (IOException e) {
-			LOG.error(e.toString());
+		GLPIPluginConfiguration config = clusterConfig.get(GLPIPluginConfiguration.class);
+		if (config == null) {
+			LOG.error("Config is needed, please fill it");
+			return "";
 		}
+		LOG.info("GLPI: API URL is {} with user token {}", config.glpiUrl(), config.apiToken());
+		session.setApiURL(config.glpiUrl());
+		session.setUserToken(config.apiToken());
+
+		sessionToken = session.getSessionTokenFromAPI(connection);
+		if (sessionToken.isEmpty()) {
+			LOG.error("GLPI: Impossible to get session token");
+			return "";
+		} else {
+			session.setSessionToken(sessionToken);
+		}
+
+		LOG.info("GLPI: Searching into {} for param: {} with filter {}", type, query, filter);
+		response.putAll(session.getSearchFromAPI(connection, type, query, filter));
+		LOG.info("GLPI: Filtered API response {}", response);
+		session.closeSession(connection);
+		if (response.isEmpty()) {
+			LOG.info("GLPI: no result");
+			return "";
+		}
+
+		// Put the response Map into a key=value String
+		for (Entry<String, Object> entry : response.entrySet()) {
+			bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
+		}
+		result = bld.toString();
+		result = result.substring(0, result.length() - 1).replace("\"", "");
+		LOG.info("GLPI: Result {}", result);
 		return result;
 	}
 
 	@Override
 	public FunctionDescriptor<String> descriptor() {
 		return FunctionDescriptor.<String>builder().name(NAME)
-				.description("Returns key=value string of field from the filter return by the GLPI API").params(queryParam, typeParam, filterParam)
-				.returnType(String.class).build();
+				.description("Returns key=value string of field from the filter return by the GLPI API")
+				.params(queryParam, typeParam, filterParam).returnType(String.class).build();
 	}
 }
