@@ -353,15 +353,16 @@ public class GLPIAPISession {
 		Map<String, Object> mappedMap = new HashMap<>(map.size());
 
 		for (Entry<String, Object> entry : map.entrySet()) {
-			if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)
-					&& !filter.equals("")) {
-				LOG.info("GLPI: The key {} is not into filter {}", translation.get(entry.getKey()), filter);
-				continue;
-			}
-			LOG.info("GLPI: The key {} is into filter {}, translate it", translation.get(entry.getKey()), filter);
-			if (translation.get(entry.getKey()) != null) {
+			if (translation.containsKey((entry.getKey()))) {
+				if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)
+						&& !filter.equals("")) {
+					LOG.info("GLPI: The key {} is not into filter {}", translation.get(entry.getKey()), filter);
+					continue;
+				}
+				LOG.info("GLPI: The key {} is into filter {}, translate it", translation.get(entry.getKey()), filter);
 				mappedMap.put(translation.get(entry.getKey()), entry.getValue());
 			} else {
+				LOG.warn("GLPI: The key {} is not into the translation matrix", entry.getKey());
 				mappedMap.put(entry.getKey(), entry.getValue());
 			}
 		}

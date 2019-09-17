@@ -60,6 +60,42 @@ public class GLPIAPISessionTest {
 	}
 
 	@Test
+	public void mappingFieldWithUnknownFieldTest() {
+		String filter = "";
+		Map<String, Object> actual = new HashMap<>();
+		Map<String, Object> expected = new HashMap<>();
+		Map<String, Object> apiResult = new HashMap<>();
+
+		apiResult.put("1", "xwing.tuxtrooper.com");
+		apiResult.put("31", "used");
+		apiResult.put("23", "msi");
+		apiResult.put("5", "");
+		apiResult.put("4", "desktop");
+		apiResult.put("40", null);
+		apiResult.put("45", null);
+		apiResult.put("3", "Home");
+		apiResult.put("19", "2019-09-12 13:59:50");
+		apiResult.put("17", null);
+		apiResult.put("56789", "Unknown field");
+
+		expected.put("Name", "xwing.tuxtrooper.com");
+		expected.put("Status", "used");
+		expected.put("Manufacturer", "msi");
+		expected.put("Serialnumber", "");
+		expected.put("Type", "desktop");
+		expected.put("Model", null);
+		expected.put("OSName", null);
+		expected.put("Location", "Home");
+		expected.put("Lastupdate", "2019-09-12 13:59:50");
+		expected.put("Processor", null);
+		expected.put("56789", "Unknown field");
+
+		actual = session.mappingField(apiResult, GLPIAPISession.getComputerTranslationMatrix(), filter);
+
+		assertEquals(expected, actual);
+	}
+	
+	@Test
 	public void mappingFieldWithFilterTest() {
 		GLPIAPISession session = new GLPIAPISession();
 		String filter = "name,osname";
@@ -89,7 +125,6 @@ public class GLPIAPISessionTest {
 	@Test
 	public void getSessionTokenFromAPITest() {
 		GLPIConnection connection = mock(GLPIConnection.class);
-		GLPIAPISession session = new GLPIAPISession();
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		StringBuffer response = new StringBuffer();
@@ -105,7 +140,6 @@ public class GLPIAPISessionTest {
 	@Test
 	public void getSessionTokenFromAPIFailureTest() {
 		GLPIConnection connection = mock(GLPIConnection.class);
-		GLPIAPISession session = new GLPIAPISession();
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		StringBuffer response = new StringBuffer();
@@ -118,13 +152,13 @@ public class GLPIAPISessionTest {
 		assertEquals("", session.getSessionTokenFromAPI(connection));
 	}
 
-	@Test
-	public void getSearchFromAPITest() {
-		fail("Not implemented");
-	}
-
-	@Test
-	public void closeSession() {
-		fail("Not implemented");
-	}
+//	@Test
+//	public void getSearchFromAPITest() {
+//		fail("Not implemented");
+//	}
+//
+//	@Test
+//	public void closeSession() {
+//		fail("Not implemented");
+//	}
 }
