@@ -6,3 +6,4 @@
 /node/
 /node_modules/
 /build/
+/yarn.lock
