@@ -76,6 +76,7 @@ public class GLPIConnection {
 					this.responseStream.append(readLine);
 				}
 				in.close();
+				log.info("GLPI: Raw response {}", this.responseStream);
 			}
 		} catch (MalformedURLException e) {
 			log.error("Malformated URL: {}", url);

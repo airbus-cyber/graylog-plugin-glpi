@@ -80,7 +80,7 @@ public class GLPIAPISession {
 		softwareTranslationMatrix.put("2", "ID");
 		softwareTranslationMatrix.put("3", "Location");
 		softwareTranslationMatrix.put("4", "Operatingsystem");
-		softwareTranslationMatrix.put("5", "Name");
+		softwareTranslationMatrix.put("5", "VersionName");
 		softwareTranslationMatrix.put("16", "Comments");
 		softwareTranslationMatrix.put("19", "Lastupdate");
 		softwareTranslationMatrix.put("23", "Publisher");
@@ -89,7 +89,7 @@ public class GLPIAPISession {
 		softwareTranslationMatrix.put("26", "Ordernumber");
 		softwareTranslationMatrix.put("27", "Deliveryform");
 		softwareTranslationMatrix.put("28", "Invoicenumber");
-		softwareTranslationMatrix.put("29", "Name");
+		softwareTranslationMatrix.put("29", "ContractName");
 		softwareTranslationMatrix.put("30", "Number");
 		softwareTranslationMatrix.put("31", "Status");
 		softwareTranslationMatrix.put("37", "Dateofpurchase");
@@ -144,7 +144,7 @@ public class GLPIAPISession {
 		softwareTranslationMatrix.put("142", "Deliverydate");
 		softwareTranslationMatrix.put("145", "Externallinks");
 		softwareTranslationMatrix.put("159", "Decommissiondate");
-		softwareTranslationMatrix.put("160", "Name");
+		softwareTranslationMatrix.put("160", "LicenseName");
 		softwareTranslationMatrix.put("161", "Serialnumber");
 		softwareTranslationMatrix.put("162", "Inventorynumber");
 		softwareTranslationMatrix.put("163", "Numberoflicenses");
@@ -348,11 +348,11 @@ public class GLPIAPISession {
 		this.apiURL = apiURL;
 	}
 
-	public Map<String, Object> mappingField(Map<String, Object> map, Map<String, String> translation, String filter) {
+	public Map<String, String> mappingField(Map<String, String> map, Map<String, String> translation, String filter) {
 		String[] filterArray = filter.toLowerCase().split(",");
-		Map<String, Object> mappedMap = new HashMap<>(map.size());
+		Map<String, String> mappedMap = new HashMap<>(map.size());
 
-		for (Entry<String, Object> entry : map.entrySet()) {
+		for (Entry<String, String> entry : map.entrySet()) {
 			if (translation.containsKey((entry.getKey()))) {
 				if (Arrays.stream(filterArray).noneMatch(translation.get(entry.getKey()).toLowerCase()::equals)
 						&& !filter.equals("")) {
@@ -383,9 +383,9 @@ public class GLPIAPISession {
 		return "";
 	}
 
-	public Map<String, Object> getSearchFromAPI(GLPIConnection connection, String category, String search, String filter) {
-		Map<String, Object> resultList = new HashMap<>();
-		Map<String, Object> blankList = new HashMap<>();
+	public Map<String, String> getSearchFromAPI(GLPIConnection connection, String category, String search, String filter) {
+		Map<String, String> resultList = new HashMap<>();
+		Map<String, String> blankList = new HashMap<>();
 		Map<String, String> translationMatrix = null;
 		String searchURL = this.getApiURL() + "/search/" + category
 				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
@@ -399,7 +399,7 @@ public class GLPIAPISession {
 			for (Entry<String, JsonValue> i : jsonObject.getValue("/data").asJsonArray().get(0).asJsonObject()
 					.entrySet()) {
 				LOG.info("GLPI: search key {} => search response: {}", i.getKey(), i.getValue());
-				resultList.put(i.getKey(), i.getValue().toString());
+				resultList.put(i.getKey(), i.getValue().toString().replace("\"", ""));
 			}
 		} catch (Exception e) {
 			LOG.error("GLPI: Impossible to parse {} into json", connection.getResponseStream());
