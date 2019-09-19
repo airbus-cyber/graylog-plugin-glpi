@@ -27,6 +27,15 @@ public class GLPI extends AbstractFunction<String> {
 
 	private ClusterConfigService clusterConfig;
 	private GLPIAPISession session = new GLPIAPISession();
+	private GLPIConnection connection = new GLPIConnection();
+
+	protected void setSession(GLPIAPISession session) {
+		this.session = session;
+	}
+
+	protected void setConnection(GLPIConnection connection) {
+		this.connection = connection;
+	}
 
 	private final ParameterDescriptor<String, String> queryParam = ParameterDescriptor.string(QUERY)
 			.description("The query you want to submit into GLPI API.").build();
@@ -46,11 +55,8 @@ public class GLPI extends AbstractFunction<String> {
 		String query = queryParam.required(functionArgs, evaluationContext);
 		String type = typeParam.required(functionArgs, evaluationContext);
 		String filter = filterParam.required(functionArgs, evaluationContext);
-		String result = "";
 		String sessionToken;
-		StringBuilder bld = new StringBuilder();
-		Map<String, Object> response = new HashMap<>();
-		GLPIConnection connection = new GLPIConnection();
+		Map<String, String> response = new HashMap<>();
 
 		GLPIPluginConfiguration config = clusterConfig.get(GLPIPluginConfiguration.class);
 		if (config == null) {
@@ -74,13 +80,19 @@ public class GLPI extends AbstractFunction<String> {
 		LOG.info("GLPI: Filtered API response {}", response);
 		session.closeSession(connection);
 		if (response.isEmpty()) {
-			LOG.info("GLPI: no result");
+			LOG.warn("GLPI: no result");
 			return "";
 		}
-
-		// Put the response Map into a key=value String
-		for (Entry<String, Object> entry : response.entrySet()) {
-			bld.append(entry.getKey() + "=" + entry.getValue().toString().replace(" ", "-") + " ");
+		return mapToString(response);
+	}
+	
+	public String mapToString(Map<String, String> map) {
+		String result;
+		StringBuilder bld = new StringBuilder();
+		
+		// Put the Map into a key=value String
+		for (Entry<String, String> entry : map.entrySet()) {
+			bld.append(entry.getKey() + "=" + entry.getValue().replace(" ", "-") + " ");
 		}
 		result = bld.toString();
 		result = result.substring(0, result.length() - 1).replace("\"", "");
