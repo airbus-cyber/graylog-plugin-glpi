@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi.svg?branch=master)](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
-[![GitHub Release](https://img.shields.io/badge/release-v1.2.2-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
+[![GitHub Release](https://img.shields.io/badge/release-v0.0.1-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
 
 ## Installation
 
