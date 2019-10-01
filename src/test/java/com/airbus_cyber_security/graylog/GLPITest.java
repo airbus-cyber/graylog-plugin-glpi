@@ -91,7 +91,7 @@ public class GLPITest {
 		String actual = plugin.evaluate(functionArgs, evaluationContext);
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void evaluateNominalWithCacheTest() {
 		String responseQuery = "vwing.tuxtrooper.com";
