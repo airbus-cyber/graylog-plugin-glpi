@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
@@ -79,6 +80,59 @@ public class GLPITest {
 		when(typeParam.required(functionArgs, evaluationContext)).thenReturn(responseType);
 		when(filterParam.required(functionArgs, evaluationContext)).thenReturn(responseFilter);
 
+		when(connection.getResponseStream()).thenReturn(tokenBuffer);
+		when(session.getSessionTokenFromAPI(any(GLPIConnection.class))).thenReturn("fake_session_token");
+		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter)).thenReturn(response);
+
+		String actual = plugin.evaluate(functionArgs, evaluationContext);
+		assertEquals(expected, actual);
+	}
+	
+	@Test
+	public void evaluateNominalWithCacheTest() {
+		String responseQuery = "vwing.tuxtrooper.com";
+		String responseType = "Computer";
+		String responseFilter = "";
+		StringBuffer tokenBuffer = new StringBuffer();
+		tokenBuffer.append("{\"session_token\":\"fake_token\"}");
+		Map<String, String> response = new HashMap<>();
+		response.put("Name", "xwing.tuxtrooper.com");
+		response.put("Status", "used");
+		response.put("Manufacturer", "msi");
+		response.put("Serialnumber", "");
+		response.put("Type", "desktop");
+		response.put("Model", "null");
+		response.put("OSName", "null");
+		response.put("Location", "Home");
+		response.put("Lastupdate", "2019-09-12 13:59:50");
+		response.put("Processor", "null");
+		String expected = "Status=used Type=desktop Processor=null Manufacturer=msi Model=null Serialnumber= OSName=null Lastupdate=2019-09-12-13:59:50 Name=xwing.tuxtrooper.com Location=Home";
+
+		ClusterConfigService clusterConfig = mock(ClusterConfigService.class);
+		GLPIAPISession session = mock(GLPIAPISession.class);
+		GLPIConnection connection = mock(GLPIConnection.class);
+		CacheManager cacheManager = CacheManagerBuilder
+				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
+						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
+				.build(true);
+		FunctionArgs functionArgs = mock(FunctionArgs.class);
+		EvaluationContext evaluationContext = mock(EvaluationContext.class);
+		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
+		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
+		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
+
+		GLPIPluginConfigurationTest config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
+
+		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
+		
+		when(clusterConfig.get(GLPIPluginConfiguration.class)).thenReturn(config);
+
+		when(queryParam.required(functionArgs, evaluationContext)).thenReturn(responseQuery);
+		when(typeParam.required(functionArgs, evaluationContext)).thenReturn(responseType);
+		when(filterParam.required(functionArgs, evaluationContext)).thenReturn(responseFilter);
+
+		Cache<String, String> myCache = cacheManager.getCache("myCache", String.class, String.class);
+		myCache.put(responseQuery, expected);
 		when(connection.getResponseStream()).thenReturn(tokenBuffer);
 		when(session.getSessionTokenFromAPI(any(GLPIConnection.class))).thenReturn("fake_session_token");
 		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter)).thenReturn(response);
