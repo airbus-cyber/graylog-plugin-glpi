@@ -1,6 +1,6 @@
 /*
- *  Copyright © - Airbus Defense and Space (SAS)- All Rights Reserved
- *  Airbus Defense and Space owns the copyright of this document.
+ * Copyright © - Airbus Defense and Space (SAS)- All Rights Reserved 
+ * Airbus Defense and Space owns the copyright of this document. 
  */
 import { PluginManifest, PluginStore } from 'graylog-web-plugin/plugin';
 import GLPIPluginsConfig from 'components/GLPIPluginConfiguration';
