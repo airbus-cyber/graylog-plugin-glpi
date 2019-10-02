@@ -1,0 +1,53 @@
+dist: trusty
+sudo: required
+language: java
+jdk:
+- openjdk8
+addons:
+  apt:
+    packages:
+    - rpm
+    - expect
+env:
+  global:
+  - LC_ALL=C
+  - secure: F7GqaAjOVERWqw103Oad3xLclMcwNOgApEAs3XkgZM+IfexPw1/Xpkjx6PT0hpM7jY4nDM0z/DhLOQtmFRAwAG3C2aGdGB68dk5vbmyoiPzGa6VmIjcLPiaAutLAgcAbpEJb35yksnBLU3XlY9xGktp7dfDfhTHs4icEj6JnFpcN1b0gJpv4NX+6NJ57iHEF6yOQA13Lneb9BhVA4lr4sg6lUDSOXVeJJSEf0yJoFI3KzTal/xQrzPUO+A92Xq9Jmpd7Sk6yLKvrNyX8aMuC0++1/3fKQ5NurGta2AJga+2SCe8lwKqSPD5QA6xONDYRNZpAHKFOcsLDoskurPgIGWX0nWyAlH88XXytPD8ImNezcajs2HgdlNlXoory4qNoJ2rgQ9NJr2jND5l3MFexKcFnIC958j/3rw45GaNGPTjy0DSIGX7gTsSJ21Lmf9r6/LZILgF4ukRHx3hDAG/pNYAUVTKrr9FuIXwBthdjICbClmPUCqidfFIeuyRSrixPEiio1ukcFo6dMHXRpwQg1LS61/Ctq+bP9LD9cwOfhwPBE4hNZ0+N31mpI0x2V4DrLXuAyQiQKqHoRzlg2VGPoXP9a92GlghZxO0XMXUPKgo2zXyJO/gLeW3WE30yyEu2FpeQ0jK/yIdaYh4aTFuTT6yflT0bJooD4fPImFzMOYo=
+  - secure: jrlVMoaFDUhdgu8MTs0QD+ZtPNWqYqiGGWytZJ5W6Sikw82SahcwwXQ/WjfyNChCr6K6aW/rziumWO4vsXtE8Hvwc14VYypjPW8oJv+DA747PXE5l8+mDLRAT2CaKrusL62dhLKhVot07+4p7qLv5VbVlp3olwU3t+LklY7R1Zj5EbapaQbV7FwP0D08gC3ctjfsCn71OP3iUrhuHDeNy3UxGnFVfxm8wUc5swuo+ZrfxD+XEGFpem7n14u4EbRVVQaXltLBF0GIxbVsFIBTkt9Y8DsT1jxi9JKntYu9HuKbmGd53y8pa5KRJlp8fm0CEkClt1gxuRa5taj2Ao3jdni8jbZUutQUsVLebLHFoe2BHODxsvl8buyb8xJ7zSouTIzfPVD7tpzKs+gVZDSbjtjnvUNWqkEKml+DyW+nY+etMIAP22kBJCaEmsyNyB6Miv8cVIc9QNn7Dqc0eNVfxNUFFsjfJAgSqgy+Z2vWVfYAemwAT/jZCd1yQHH/0dr08XrGlvBWZZfAbK+XT25uzIi3jkLJaOstIHEZlVc2MrGWEVAUSLyRI+hPKbHEZqHNYvj7SP2SdF8keuTffXd9F6K0G2aJ5OinN48fbeOMHZhAsVzMxKji4V9HUZLmb8SPgrdQdcZ32gpKEC8Kc/t0li9GaZn4B0NraMjTQ9jrqk4=
+  - secure: oFAYjfda1+Q3LYLq4OGL5WdBZaYH/TXPNyJbyWl0qOO2ml0XEorwPhSPuz5rvFLZqfT8X7FenLPHT54M2lGskrOsN8B4tYZE8SrN82E0oEVbQNICwkdiYws0aSBaWid0s0Nl+XdImhZtykrAoAbdxdLlbhHwojvbO954ugp8A4oKNcq6X2XjznBZtHxxCaonsahK3ct4zjm2HGAAwLrYu+6yF7Gmd/ZYcJCYNNcYosSkfxyBmrNO0sbM4D7cMc15q3gZ87I28DV33eCWDJMFdpO9WModSSC3GDG1Qrk94VbifpwOx/nRnugw2orZMAau/IlRVOG7VQzwHZSxW09QHMaa0tM/cQTgM1DAeywn7RoykiICP6przKDiNlib5taqhWPizDqJO8vi4hJtEWNmRIsC1KtxgbnKtob0m+pNe4ZU3W0Xu1V1y/XzI8J3n0guUiQtf/Zkj/JDIUkCaI7co/RoZB3i0RotVDdD3Raq96aF3USeSNDKhov6st6on3n8YnIT+16KHrk5mGJuqJ6Er3z5OLTFwkb4XAUqul/K0nTvrgvAltD2zzwVJxLMvL9fY/F0Fkh/yctQkUjlZ/u7UMc+uO4ShJOIQauhHhkrN/+8SFggf0AYYed6r52v8q7maTc8Iu+LoLeDDjWcRYbE4noNz5TVOb48TCVT/zah5SM=
+install:
+- git clone --branch 3.0 --depth=1 --no-single-branch https://github.com/Graylog2/graylog2-server
+  ../graylog2-server
+- "(cd ../graylog2-server && mvn -DskipTests=true compile -B -V)"
+- mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dskip.web.build=true -Dsource.skip=true
+  -Dgpg.skip -B -V
+script:
+- mvn package -Dmaven.javadoc.skip=true -Dsource.skip=true -Dgpg.skip -B
+after_success:
+- openssl aes-256-cbc -K $encrypted_eb7d761d9b2f_key -iv $encrypted_eb7d761d9b2f_iv
+  -in deployment/signingkey.asc.enc -out deployment/signingkey.asc -d
+- gpg2 --import deployment/signingkey.asc
+- gpg2 --allow-secret-key-import --import deployment/signingkey.asc
+before_deploy:
+- mvn jdeb:jdeb --settings deployment/settings.xml && export RELEASE_DEB_FILE=$(ls
+  target/*.deb)
+- mvn rpm:rpm --settings deployment/settings.xml && export RELEASE_RPM_FILE=$(find
+  target/ -name '*.rpm' | tail -1)
+- rm -f target/original-*.jar
+- export RELEASE_PKG_FILE=$(ls target/*.jar)
+- echo "Deploying release to GitHub releases"
+deploy:
+  provider: releases
+  api_key:
+    secure: L0SCYpBQTuuXmzrl68iF8y80jjXRXtjQzdq+gbf0+hPGZuRxcl/UwJcEz4pOBNAmLy+zh+xz/IZPNNm/KnYLNrrJk69a1LsJ58H3xpis8ycdzjIQvXuJn6i7Pffrd5nER9TpsiokERzBlT7hiEJaB36pvxQGUVSbhoCxciQ8x+9Dnh4Xx6HFtbzqJlB69hQMA5r4ojOoinbbaM4qBr7/ypAydwuRiYiXFPWinL2JJHTLeDb5XSNyDcHqLOY3l9hPQ/mCuz1ufgyjbXBhVAd8zxsksjvVR5O6XUlSUxM/TWfSmmTgRnU23jJuOV1bSZWlMBeK6WNw2y6lxzR2BsEDa1c+HOAg33FNo9laMW7OTumI3Xsdy3vtCaPnb1cHKQH6cXSvu2vRzVNST8edwQjTs/jT842/Eodo0X7WH9Jdn+dI/L4zCk8O4OEeTMBBapBdujqhuRB0eHIAZxy4arEGFwKx/v1UtL9UgzWT+T1hX+T3Zk1JsnCg1IU9L0/J5OWrMB6jyFeyx5kU4s2/b83DDisyNq2LC8waML7Z7giyj8PMr5QKEjhF5/Fe21eGjBJaHjnzQwHlaFBkhHGbrmzQvDsh3KX0pxQKIdy0frsT1pvoxRqz7zvnUTvpF+DqmbQldh9ALGpdbJONLgIqmclui+NgshEU4dKPhMsOg6+dpI0=
+  file:
+  - "${RELEASE_PKG_FILE}"
+  - "${RELEASE_DEB_FILE}"
+  - "${RELEASE_RPM_FILE}"
+  skip_cleanup: true
+  on:
+    repo: airbus-cyber/graylog-plugin-glpi
+    jdk: openjdk8
+    tags: true
+after_deploy:
+- echo "Deploying release to Maven Central"
+- mvn clean deploy -DskipTests=true --settings deployment/settings.xml
