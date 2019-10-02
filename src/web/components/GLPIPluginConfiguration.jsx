@@ -1,3 +1,7 @@
+/*
+ * Copyright © - Airbus Defense and Space (SAS)- All Rights Reserved 
+ * Airbus Defense and Space owns the copyright of this document. 
+ */
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
