@@ -31,11 +31,31 @@ public class GLPITest {
 
 	private GLPI plugin;
 	private ClusterConfigService clusterConfig;
+	GLPIAPISession session;
+	GLPIConnection connection;
+	CacheManager cacheManager;
+	final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
+	final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
+	final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
+	FunctionArgs functionArgs;
+	EvaluationContext evaluationContext;
+	GLPIPluginConfigurationTest config;
 
 	@Before
 	public void setUp() throws Exception {
 		clusterConfig = mock(ClusterConfigService.class);
-		plugin = new GLPI(clusterConfig);
+
+		session = mock(GLPIAPISession.class);
+		connection = mock(GLPIConnection.class);
+		cacheManager = CacheManagerBuilder
+				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
+						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
+				.build(true);
+		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
+
+		functionArgs = mock(FunctionArgs.class);
+		evaluationContext = mock(EvaluationContext.class);
+		config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
 	}
 
 	@After
@@ -62,22 +82,6 @@ public class GLPITest {
 		response.put("Processor", "null");
 		String expected = "Status=used Type=desktop Processor=null Manufacturer=msi Model=null Serialnumber= OSName=null Lastupdate=2019-09-12-13:59:50 Name=xwing.tuxtrooper.com Location=Home";
 
-		ClusterConfigService clusterConfig = mock(ClusterConfigService.class);
-		GLPIAPISession session = mock(GLPIAPISession.class);
-		GLPIConnection connection = mock(GLPIConnection.class);
-		CacheManager cacheManager = CacheManagerBuilder
-				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
-				.build(true);
-		FunctionArgs functionArgs = mock(FunctionArgs.class);
-		EvaluationContext evaluationContext = mock(EvaluationContext.class);
-		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
-
-		GLPIPluginConfigurationTest config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
-
-		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
 		when(clusterConfig.get(GLPIPluginConfiguration.class)).thenReturn(config);
 
 		when(queryParam.required(functionArgs, evaluationContext)).thenReturn(responseQuery);
@@ -99,35 +103,8 @@ public class GLPITest {
 		String responseFilter = "";
 		StringBuffer tokenBuffer = new StringBuffer();
 		tokenBuffer.append("{\"session_token\":\"fake_token\"}");
-		Map<String, String> response = new HashMap<>();
-		response.put("Name", "xwing.tuxtrooper.com");
-		response.put("Status", "used");
-		response.put("Manufacturer", "msi");
-		response.put("Serialnumber", "");
-		response.put("Type", "desktop");
-		response.put("Model", "null");
-		response.put("OSName", "null");
-		response.put("Location", "Home");
-		response.put("Lastupdate", "2019-09-12 13:59:50");
-		response.put("Processor", "null");
 		String expected = "Status=used Type=desktop Processor=null Manufacturer=msi Model=null Serialnumber= OSName=null Lastupdate=2019-09-12-13:59:50 Name=xwing.tuxtrooper.com Location=Home";
-
-		ClusterConfigService clusterConfig = mock(ClusterConfigService.class);
-		GLPIAPISession session = mock(GLPIAPISession.class);
-		GLPIConnection connection = mock(GLPIConnection.class);
-		CacheManager cacheManager = CacheManagerBuilder
-				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
-				.build(true);
-		FunctionArgs functionArgs = mock(FunctionArgs.class);
-		EvaluationContext evaluationContext = mock(EvaluationContext.class);
-		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
-
-		GLPIPluginConfigurationTest config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
-
-		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
+		String inCache = "Status=used Type=desktop Processor=null Manufacturer=msi Model=null Serialnumber= OSName=null Lastupdate=2019-09-12-13:59:50 Name=xwing.tuxtrooper.com Location=Home";
 
 		when(clusterConfig.get(GLPIPluginConfiguration.class)).thenReturn(config);
 
@@ -136,10 +113,9 @@ public class GLPITest {
 		when(filterParam.required(functionArgs, evaluationContext)).thenReturn(responseFilter);
 
 		Cache<String, String> myCache = cacheManager.getCache("myCache", String.class, String.class);
-		myCache.put(responseQuery, expected);
+		myCache.put(responseQuery, inCache);
 		when(connection.getResponseStream()).thenReturn(tokenBuffer);
 		when(session.getSessionTokenFromAPI(any(GLPIConnection.class))).thenReturn("fake_session_token");
-		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter)).thenReturn(response);
 
 		String actual = plugin.evaluate(functionArgs, evaluationContext);
 		assertEquals(expected, actual);
@@ -152,25 +128,9 @@ public class GLPITest {
 		String responseType = "Computer";
 		String responseFilter = "";
 
-		ClusterConfigService clusterConfig = mock(ClusterConfigService.class);
-		GLPIAPISession session = mock(GLPIAPISession.class);
-		GLPIConnection connection = mock(GLPIConnection.class);
-		CacheManager cacheManager = CacheManagerBuilder
-				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
-				.build(true);
-		FunctionArgs functionArgs = mock(FunctionArgs.class);
-		EvaluationContext evaluationContext = mock(EvaluationContext.class);
-		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
-
 		StringBuffer tokenBuffer = new StringBuffer();
-		tokenBuffer.append("{\"session_token\":\"fake_token\"}");
+		tokenBuffer.append("{\"session_token\":\"\"}");
 
-		GLPIPluginConfigurationTest config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
-
-		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
 		when(clusterConfig.get(GLPIPluginConfiguration.class)).thenReturn(config);
 
 		when(queryParam.required(functionArgs, evaluationContext)).thenReturn(responseQuery);
@@ -191,12 +151,6 @@ public class GLPITest {
 		String responseFilter = "";
 		String expected = "GLPI=noConfig";
 
-		FunctionArgs functionArgs = mock(FunctionArgs.class);
-		EvaluationContext evaluationContext = mock(EvaluationContext.class);
-		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
-
 		when(queryParam.required(functionArgs, evaluationContext)).thenReturn(responseQuery);
 		when(typeParam.required(functionArgs, evaluationContext)).thenReturn(responseType);
 		when(filterParam.required(functionArgs, evaluationContext)).thenReturn(responseFilter);
@@ -216,22 +170,6 @@ public class GLPITest {
 		Map<String, String> response = new HashMap<>();
 		String expected = "GLPI=noResult";
 
-		ClusterConfigService clusterConfig = mock(ClusterConfigService.class);
-		GLPIAPISession session = mock(GLPIAPISession.class);
-		GLPIConnection connection = mock(GLPIConnection.class);
-		CacheManager cacheManager = CacheManagerBuilder
-				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
-				.build(true);
-		FunctionArgs functionArgs = mock(FunctionArgs.class);
-		EvaluationContext evaluationContext = mock(EvaluationContext.class);
-		final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-		final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
-
-		GLPIPluginConfigurationTest config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token");
-
-		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
 		when(clusterConfig.get(GLPIPluginConfiguration.class)).thenReturn(config);
 
 		when(queryParam.required(functionArgs, evaluationContext)).thenReturn(responseQuery);
