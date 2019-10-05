@@ -4,14 +4,17 @@
  */
 package com.airbus_cyber_security.graylog;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
+import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.graylog.plugins.pipelineprocessor.EvaluationContext;
 import org.graylog.plugins.pipelineprocessor.ast.functions.AbstractFunction;
@@ -36,9 +39,11 @@ public class GLPI extends AbstractFunction<String> {
 	private ClusterConfigService clusterConfig;
 	private GLPIAPISession session = new GLPIAPISession();
 	private GLPIConnection connection = new GLPIConnection();
+
 	private CacheManager cacheManager = CacheManagerBuilder
 			.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-					.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
+					.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(100))
+					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(20))))
 			.build(true);
 
 	private ParameterDescriptor<String, String> queryParam = ParameterDescriptor.string(QUERY)
@@ -87,11 +92,9 @@ public class GLPI extends AbstractFunction<String> {
 		}
 
 		if (myCache.containsKey(query)) {
-			System.out.println("Cache used");
 			log.info("GLPI: query {} is into cache with response {}", query, myCache.get(query));
 			return myCache.get(query);
 		} else {
-			System.out.println("No cache used");
 			log.info("GLPI: API URL is {} with user token {}", config.glpiUrl(), config.apiToken());
 			session.setApiURL(config.glpiUrl());
 			session.setUserToken(config.apiToken());
