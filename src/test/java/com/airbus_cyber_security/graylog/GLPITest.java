@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ExpiryPolicyBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.graylog.plugins.pipelineprocessor.EvaluationContext;
 import org.graylog.plugins.pipelineprocessor.ast.functions.FunctionArgs;
@@ -34,9 +36,9 @@ public class GLPITest {
 	GLPIAPISession session;
 	GLPIConnection connection;
 	CacheManager cacheManager;
-	final ParameterDescriptor<String, String> queryParam = mock(ParameterDescriptor.class);
-	final ParameterDescriptor<String, String> typeParam = mock(ParameterDescriptor.class);
-	final ParameterDescriptor<String, String> filterParam = mock(ParameterDescriptor.class);
+	ParameterDescriptor<String, String> queryParam;
+	ParameterDescriptor<String, String> typeParam;
+	ParameterDescriptor<String, String> filterParam;
 	FunctionArgs functionArgs;
 	EvaluationContext evaluationContext;
 	GLPIPluginConfigurationTest config;
@@ -44,12 +46,16 @@ public class GLPITest {
 	@Before
 	public void setUp() throws Exception {
 		clusterConfig = mock(ClusterConfigService.class);
+		queryParam = mock(ParameterDescriptor.class);
+		typeParam = mock(ParameterDescriptor.class);
+		filterParam = mock(ParameterDescriptor.class);
 
 		session = mock(GLPIAPISession.class);
 		connection = mock(GLPIConnection.class);
-		cacheManager = CacheManagerBuilder
-				.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(10)))
+		cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+				.withCache("myCache", CacheConfigurationBuilder
+						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(100))
+						.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(60))))
 				.build(true);
 		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
 

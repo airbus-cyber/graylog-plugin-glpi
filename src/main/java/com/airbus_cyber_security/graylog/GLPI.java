@@ -11,7 +11,6 @@ import java.util.Map.Entry;
 
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
@@ -40,10 +39,11 @@ public class GLPI extends AbstractFunction<String> {
 	private GLPIAPISession session = new GLPIAPISession();
 	private GLPIConnection connection = new GLPIConnection();
 
-	private CacheManager cacheManager = CacheManagerBuilder
-			.newCacheManagerBuilder().withCache("myCache", CacheConfigurationBuilder
-					.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(100))
-					.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(20))))
+	private CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+			.withCache("myCache",
+					CacheConfigurationBuilder
+							.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(100))
+							.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(60))))
 			.build(true);
 
 	private ParameterDescriptor<String, String> queryParam = ParameterDescriptor.string(QUERY)
