@@ -15,19 +15,29 @@ Restart `graylog-server` and you are done.
 
 ## Usage
 
-To search into the Computer category for the source field, create a pipeline function like:
-
+To search into the Computer category for the source field and display all fields, create a pipeline function like:
 ```
 rule "GLPIComputer"
 when
   has_field("source")
 then
-  let computer = GLPI(to_string($message.source), "Computer");
+  let computer = GLPI(to_string($message.source), "Computer", "");
   let computer_fieds = key_value(computer);
   set_fields(computer_fieds, "Computer-");
 end
 ```
 
+If you want to do the same search but displaying only the field called OSName, create a pipeline function like:
+```
+rule "GLPIComputer"
+when
+  has_field("source")
+then
+  let computer = GLPI(to_string($message.source), "Computer", "OSName");
+  let computer_fieds = key_value(computer);
+  set_fields(computer_fieds, "Computer-");
+end
+```
 ## Build
 
 This project is using Maven 3 and requires Java 8 or higher.
