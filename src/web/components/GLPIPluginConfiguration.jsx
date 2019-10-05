@@ -23,6 +23,8 @@ const GLPIPluginConfiguration = createReactClass({
       config: {
         glpi_url: 'http://url:port/glpi/apirest.php',
         api_token: 'api token',
+        heap_size: '100',
+        ttl: '60',
       },
     };
   },
@@ -104,7 +106,20 @@ const GLPIPluginConfiguration = createReactClass({
               ? this.state.config.api_token
               : '[not set]'}
           </dd>
-
+            
+          <dt>Cache heap size:</dt>
+          <dd>
+            {this.state.config.heap_size
+              ? this.state.config.heap_size
+              : '[not set]'}
+          </dd>
+          
+          <dt>Cache TTL:</dt>
+          <dd>
+            {this.state.config.ttl
+              ? this.state.config.ttl
+              : '[not set]'}
+          </dd>
         </dl>
 
         <IfPermitted permissions="clusterconfigentry:edit">
@@ -149,7 +164,34 @@ const GLPIPluginConfiguration = createReactClass({
               value={this.state.config.api_token}
               onChange={this._onUpdate('api_token')}
             />
-              
+            
+            <Input
+              id="heap-size"
+              type="text"
+              label="Cache Heap Size"
+              help={
+                <span>
+                  Cache size in Mib. Graylog service restart is needed after change.
+                </span>
+              }
+              name="heap_size"
+              value={this.state.config.heap_size}
+              onChange={this._onUpdate('heap_size')}
+            />
+          
+            <Input
+              id="ttl"
+              type="text"
+              label="Cache TTL"
+              help={
+                <span>
+                  Cache TTL. Graylog service restart is needed after change.
+                </span>
+              }
+              name="ttl"
+              value={this.state.config.ttl}
+              onChange={this._onUpdate('ttl')}
+            />
           </fieldset>
         </BootstrapModalForm>
       </div>

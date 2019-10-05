@@ -18,14 +18,21 @@ public abstract class GLPIPluginConfiguration {
 	@JsonProperty("api_token")
 	public abstract String apiToken();
 
+	@JsonProperty("heap_size")
+	public abstract int heapSize();
+
+	@JsonProperty("ttl")
+	public abstract int ttl();
+
 	@JsonCreator
 	public static GLPIPluginConfiguration create(@JsonProperty("glpi_url") String glpiUrl,
-			@JsonProperty("api_token") String apiToken) {
-		return builder().glpiUrl(glpiUrl).apiToken(apiToken).build();
+			@JsonProperty("api_token") String apiToken, @JsonProperty("heap_size") int heapSize,
+			@JsonProperty("ttl") int ttl) {
+		return builder().glpiUrl(glpiUrl).apiToken(apiToken).heapSize(heapSize).ttl(ttl).build();
 	}
 
 	public static GLPIPluginConfiguration createDefault() {
-		return builder().glpiUrl("").apiToken("").build();
+		return builder().glpiUrl("").apiToken("").heapSize(100).ttl(60).build();
 	}
 
 	public static Builder builder() {
@@ -39,6 +46,10 @@ public abstract class GLPIPluginConfiguration {
 		public abstract Builder glpiUrl(String glpiUrl);
 
 		public abstract Builder apiToken(String apiToken);
+
+		public abstract Builder heapSize(int heapSize);
+
+		public abstract Builder ttl(int ttl);
 
 		public abstract GLPIPluginConfiguration build();
 	}
