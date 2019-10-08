@@ -23,8 +23,8 @@ const GLPIPluginConfiguration = createReactClass({
       config: {
         glpi_url: 'http://url:port/glpi/apirest.php',
         api_token: 'api token',
-        heap_size: '100',
-        ttl: '60',
+        heap_size: 100,
+        ttl: 60,
       },
     };
   },

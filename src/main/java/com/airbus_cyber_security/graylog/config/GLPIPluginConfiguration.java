@@ -28,6 +28,11 @@ public abstract class GLPIPluginConfiguration {
 	public static GLPIPluginConfiguration create(@JsonProperty("glpi_url") String glpiUrl,
 			@JsonProperty("api_token") String apiToken, @JsonProperty("heap_size") int heapSize,
 			@JsonProperty("ttl") int ttl) {
+		if(heapSize <= 0)
+			heapSize = 100;
+		if(ttl <= 0) {
+			ttl = 60;
+		}
 		return builder().glpiUrl(glpiUrl).apiToken(apiToken).heapSize(heapSize).ttl(ttl).build();
 	}
 
