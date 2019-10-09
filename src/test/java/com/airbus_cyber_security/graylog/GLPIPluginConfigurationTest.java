@@ -1,6 +1,6 @@
 /*
- *  Copyright © - Airbus Defense and Space (SAS)- All Rights Reserved
- *  Airbus Defense and Space owns the copyright of this document.
+ * Copyright © - Airbus Defense and Space (SAS)- All Rights Reserved 
+ * Airbus Defense and Space owns the copyright of this document. 
  */
 package com.airbus_cyber_security.graylog;
 
@@ -35,8 +35,17 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 	}
 
 	@Override
+	public int heapSize() {
+		return 100;
+	}
+
+	@Override
+	public int ttl() {
+		return 60;
+	}
+	
+	@Override
 	public Builder toBuilder() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -45,4 +54,5 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 		this.glpiURL = glpiURL;
 		this.apiToken = apiToken;
 	}
+
 }

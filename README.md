@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi.svg?branch=master)](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
-[![GitHub Release](https://img.shields.io/badge/release-v1.0.0-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
+[![GitHub Release](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
 
 ## Installation
 
@@ -15,19 +15,29 @@ Restart `graylog-server` and you are done.
 
 ## Usage
 
-To search into the Computer category for the source field, create a pipeline function like:
-
+To search into the Computer category for the source field and display all fields, create a pipeline function like:
 ```
 rule "GLPIComputer"
 when
   has_field("source")
 then
-  let computer = GLPI(to_string($message.source), "Computer");
+  let computer = GLPI(to_string($message.source), "Computer", "");
   let computer_fieds = key_value(computer);
   set_fields(computer_fieds, "Computer-");
 end
 ```
 
+If you want to do the same search but displaying only the field called OSName, create a pipeline function like:
+```
+rule "GLPIComputer"
+when
+  has_field("source")
+then
+  let computer = GLPI(to_string($message.source), "Computer", "OSName");
+  let computer_fieds = key_value(computer);
+  set_fields(computer_fieds, "Computer-");
+end
+```
 ## Build
 
 This project is using Maven 3 and requires Java 8 or higher.
