@@ -14,7 +14,9 @@
   ],
   "author": "Airbus CyberSecurity",
   "license": "GPL-3.0",
-  "dependencies": {},
+  "dependencies": {
+  	"superagent": "^3.4.3"
+  },
   "devDependencies": {
     "graylog-web-plugin": "file:../graylog2-server/graylog2-web-interface/packages/graylog-web-plugin"
   },
