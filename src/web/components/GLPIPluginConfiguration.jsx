@@ -145,7 +145,7 @@ const GLPIPluginConfiguration = createReactClass({
         </dl>
 
         <IfPermitted permissions="clusterconfigentry:edit">
-          <Button bsStyle="info" bsSize="s" onClick={this._openModal}>
+          <Button bsStyle="info" bsSize="xs" onClick={this._openModal}>
             Configure
           </Button>
         </IfPermitted>
@@ -215,7 +215,7 @@ const GLPIPluginConfiguration = createReactClass({
               onChange={this._onUpdate('ttl')}
             />
             
-            <Button bsStyle="info" bsSize="xs" onClick={this._test_connection}>
+            <Button bsStyle="info" bsSize="s" onClick={this._test_connection}>
               Test
             </Button>
           </fieldset>
