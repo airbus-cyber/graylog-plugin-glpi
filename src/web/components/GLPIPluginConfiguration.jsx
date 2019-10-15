@@ -9,6 +9,8 @@ import { Button } from 'react-bootstrap';
 import { BootstrapModalForm, Input } from 'components/bootstrap';
 import { IfPermitted } from 'components/common';
 import ObjectUtils from 'util/ObjectUtils';
+import request from 'superagent';
+import UserNotification from 'util/UserNotification';
 
 const GLPIPluginConfiguration = createReactClass({
   displayName: 'GLPIPluginConfiguration',
@@ -81,6 +83,25 @@ const GLPIPluginConfiguration = createReactClass({
       this._closeModal();
     });
   },
+  
+  _test_connection() {
+      request
+            .get(this.state.config.glpi_url + "/initSession")
+            .set('Authorization', 'user_token ' + this.state.config.api_token)
+            .set('Content-Type', 'application/json')
+            .end((err, resp) => {
+                if (!err) {
+                    UserNotification.success("Connection to "
+                            + this.state.config.glpi_url + " with token "
+                            + this.state.config.api_token + " succeed", "Succeed connection")
+                }
+                else {
+                    UserNotification.error("Impossible to connect to "
+                            + this.state.config.glpi_url + " with token "
+                            + this.state.config.api_token + " and error: " + err, "Failed to connect");
+                }
+            })
+  },
 
   render() {
     return (
@@ -88,8 +109,9 @@ const GLPIPluginConfiguration = createReactClass({
         <h3>GLPI Plugin Configuration</h3>
 
         <p>
-          Base configuration GLPI plugin (URL and API key). Note that some parameters will be stored in MongoDB without encryption.
-          Graylog users with required permissions will be able to read them in the configuration dialog on this page.
+          Base configuration GLPI plugin (URL and API key). Note that some parameters will be stored 
+          in MongoDB without encryption. Graylog users with required permissions will be able 
+          to read them in the configuration dialog on this page.
         </p>
 
         <dl className="deflist">
@@ -123,7 +145,7 @@ const GLPIPluginConfiguration = createReactClass({
         </dl>
 
         <IfPermitted permissions="clusterconfigentry:edit">
-          <Button bsStyle="info" bsSize="xs" onClick={this._openModal}>
+          <Button bsStyle="info" bsSize="s" onClick={this._openModal}>
             Configure
           </Button>
         </IfPermitted>
@@ -192,6 +214,10 @@ const GLPIPluginConfiguration = createReactClass({
               value={this.state.config.ttl}
               onChange={this._onUpdate('ttl')}
             />
+            
+            <Button bsStyle="info" bsSize="xs" onClick={this._test_connection}>
+              Test
+            </Button>
           </fieldset>
         </BootstrapModalForm>
       </div>
