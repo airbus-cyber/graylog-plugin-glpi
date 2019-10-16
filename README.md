@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi.svg?branch=master)](https://travis-ci.org/airbus-cyber/graylog-plugin-glpi)
 [![License](https://img.shields.io/badge/license-GPL--3.0-orange.svg)](https://www.gnu.org/licenses/gpl-3.0.txt)
-[![GitHub Release](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
+[![GitHub Release](https://img.shields.io/badge/release-v1.2.0-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
 
 ## Installation
 
@@ -12,6 +12,14 @@ is the `plugins/` folder relative from your `graylog-server` directory by defaul
 and can be configured in your `graylog.conf` file.
 
 Restart `graylog-server` and you are done.
+
+## Configuration
+
+In the configuration tab of Graylog, you will have to provide:
+  * GLPI API URL
+  * GLPI API Token
+  * Cache Heap Size
+  * Cache TTL
 
 ## Usage
 
