@@ -168,7 +168,7 @@ const GLPIPluginConfiguration = createReactClass({
             <Input
               id="heap-size"
               type="text"
-              label="Cache Heap Size"
+              label="Cache Heap Size (Mib)"
               help={
                 <span>
                   Cache size in Mib. Graylog service restart is needed after change.
@@ -182,10 +182,10 @@ const GLPIPluginConfiguration = createReactClass({
             <Input
               id="ttl"
               type="text"
-              label="Cache TTL"
+              label="Cache TTL (seconds)"
               help={
                 <span>
-                  Cache TTL. Graylog service restart is needed after change.
+                  Cache TTL in seconds. Graylog service restart is needed after change.
                 </span>
               }
               name="ttl"
