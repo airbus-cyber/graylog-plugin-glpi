@@ -68,28 +68,15 @@ public class GLPI extends AbstractFunction<String> {
 	@Inject
 	public GLPI(final ClusterConfigService clusterConfigService) {
 		clusterConfig = clusterConfigService;
-		try {
-			this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-					.withCache("myCache", CacheConfigurationBuilder
-							.newCacheConfigurationBuilder(String.class, String.class,
-									ResourcePoolsBuilder
-											.heap((int) clusterConfig.get(GLPIPluginConfiguration.class).heapSize()))
-							.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(
-									Duration.ofSeconds((int) clusterConfig.get(GLPIPluginConfiguration.class).ttl()))))
-					.build(true);
-		} catch (ClassCastException e) {
-			log.error("Impossible to use {} or {} as heap size respectively ttl, using defaults (100, 60)",
-					clusterConfig.get(GLPIPluginConfiguration.class).heapSize(),
-					clusterConfig.get(GLPIPluginConfiguration.class).ttl());
-			this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
-					.withCache("myCache", CacheConfigurationBuilder
-							.newCacheConfigurationBuilder(String.class, String.class,
-									ResourcePoolsBuilder
-											.heap(100))
-							.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(
-									Duration.ofSeconds(60))))
-					.build(true);
-		}
+		GLPIPluginConfiguration conf = clusterConfig.getOrDefault(GLPIPluginConfiguration.class,
+				GLPIPluginConfiguration.createDefault());
+		this.cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
+				.withCache("myCache",
+						CacheConfigurationBuilder
+								.newCacheConfigurationBuilder(String.class, String.class,
+										ResourcePoolsBuilder.heap(conf.heapSize()))
+								.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(conf.ttl()))))
+				.build(true);
 	}
 
 	@Override
