@@ -20,6 +20,8 @@ In the configuration tab of Graylog, you will have to provide:
   * GLPI API Token
   * Cache Heap Size
   * Cache TTL
+ 
+ You may have to change the order into "Message Processors Configuration". Just switch between "Message Filter Chain" and 	"Pipeline Processor"
 
 ## Usage
 
