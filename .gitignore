@@ -6,7 +6,6 @@
 /node/
 /node_modules/
 /build/
-/yarn.lock
 target/
 pom.xml.tag
 pom.xml.releaseBackup
