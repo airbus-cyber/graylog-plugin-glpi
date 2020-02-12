@@ -6,7 +6,8 @@ package com.airbus_cyber_security.graylog;
 
 public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.graylog.config.GLPIPluginConfiguration {
 	private String glpiURL;
-	private String apiToken;
+	private String userToken;
+	private String appToken;
 	
 	public String getGlpiURL() {
 		return glpiURL;
@@ -16,12 +17,20 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 		this.glpiURL = glpiURL;
 	}
 
-	public String getApiToken() {
-		return apiToken;
+	public String getUserToken() {
+		return userToken;
 	}
 
-	public void setApiToken(String apiToken) {
-		this.apiToken = apiToken;
+	public void setUserToken(String apiToken) {
+		this.userToken = apiToken;
+	}
+
+	public String getAppToken() {
+		return appToken;
+	}
+
+	public void setAppToken(String apiToken) {
+		this.appToken = apiToken;
 	}
 	
 	@Override
@@ -30,8 +39,13 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 	}
 
 	@Override
-	public String apiToken() {
-		return apiToken;
+	public String userToken() {
+		return userToken;
+	}
+
+	@Override
+	public String appToken() {
+		return appToken;
 	}
 
 	@Override
@@ -49,10 +63,11 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 		return null;
 	}
 
-	public GLPIPluginConfigurationTest(String glpiURL, String apiToken) {
+	public GLPIPluginConfigurationTest(String glpiURL, String userToken, String appToken) {
 		super();
 		this.glpiURL = glpiURL;
-		this.apiToken = apiToken;
+		this.userToken = userToken;
+		this.appToken = appToken;
 	}
 
 }

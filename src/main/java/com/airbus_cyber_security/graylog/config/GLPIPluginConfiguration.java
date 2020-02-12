@@ -15,8 +15,11 @@ public abstract class GLPIPluginConfiguration {
 	@JsonProperty("glpi_url")
 	public abstract String glpiUrl();
 
-	@JsonProperty("api_token")
-	public abstract String apiToken();
+	@JsonProperty("user_token")
+	public abstract String userToken();
+
+	@JsonProperty("app_token")
+	public abstract String appToken();
 
 	@JsonProperty("heap_size")
 	public abstract int heapSize();
@@ -26,18 +29,20 @@ public abstract class GLPIPluginConfiguration {
 
 	@JsonCreator
 	public static GLPIPluginConfiguration create(@JsonProperty("glpi_url") String glpiUrl,
-			@JsonProperty("api_token") String apiToken, @JsonProperty("heap_size") int heapSize,
-			@JsonProperty("ttl") int ttl) {
+												 @JsonProperty("user_token") String userToken,
+												 @JsonProperty("app_token") String appToken,
+												 @JsonProperty("heap_size") int heapSize,
+												 @JsonProperty("ttl") int ttl) {
 		if(heapSize <= 0)
 			heapSize = 100;
 		if(ttl <= 0) {
 			ttl = 60;
 		}
-		return builder().glpiUrl(glpiUrl).apiToken(apiToken).heapSize(heapSize).ttl(ttl).build();
+		return builder().glpiUrl(glpiUrl).userToken(userToken).appToken(appToken).heapSize(heapSize).ttl(ttl).build();
 	}
 
 	public static GLPIPluginConfiguration createDefault() {
-		return builder().glpiUrl("").apiToken("").heapSize(100).ttl(60).build();
+		return builder().glpiUrl("").userToken("").appToken("").heapSize(100).ttl(60).build();
 	}
 
 	public static Builder builder() {
@@ -50,7 +55,9 @@ public abstract class GLPIPluginConfiguration {
 	public static abstract class Builder {
 		public abstract Builder glpiUrl(String glpiUrl);
 
-		public abstract Builder apiToken(String apiToken);
+		public abstract Builder userToken(String userToken);
+
+		public abstract Builder appToken(String appToken);
 
 		public abstract Builder heapSize(int heapSize);
 

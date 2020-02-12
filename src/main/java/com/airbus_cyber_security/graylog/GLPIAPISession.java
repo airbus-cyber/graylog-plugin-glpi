@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class GLPIAPISession {
 	private String apiURL;
 	private String userToken;
+	private String appToken;
 	private String sessionToken;
 	Logger LOG = LoggerFactory.getLogger(Function.class);
 
@@ -336,12 +337,12 @@ public class GLPIAPISession {
 		this.sessionToken = sessionToken;
 	}
 
-	public String getUserToken() {
-		return userToken;
-	}
-
 	public void setUserToken(String userToken) {
 		this.userToken = userToken;
+	}
+
+	public void setAppToken(String appToken) {
+		this.appToken = appToken;
 	}
 
 	public String getApiURL() {
@@ -375,7 +376,7 @@ public class GLPIAPISession {
 
 	public String getSessionTokenFromAPI(GLPIConnection connection) {
 		LOG.info("GLPI: Getting session token");
-		connection.connectToURL(this.getApiURL() + "/initSession", this.userToken);
+		connection.connectToURL(this.getApiURL() + "/initSession", this.userToken, this.appToken);
 		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
 			JsonObject jsonObject = reader.readObject();
 			sessionToken = jsonObject.get("session_token").toString().replaceAll("\"", "");
@@ -395,7 +396,7 @@ public class GLPIAPISession {
 				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
 
 		LOG.info("GLPI: request URL: {}", searchURL);
-		connection.connectToURL(searchURL, this.userToken, this.sessionToken);
+		connection.connectToURL(searchURL, this.userToken, this.appToken, this.sessionToken);
 
 		// Interpret JSON and put it in Map
 		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
@@ -430,6 +431,6 @@ public class GLPIAPISession {
 
 	public void closeSession(GLPIConnection connection) {
 		LOG.info("GLPI: closing session");
-		connection.connectToURL(this.getApiURL() + "/killSession", this.userToken, this.sessionToken);
+		connection.connectToURL(this.getApiURL() + "/killSession", this.userToken, this.appToken, this.sessionToken);
 	}
 }

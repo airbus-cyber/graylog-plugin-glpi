@@ -24,7 +24,8 @@ const GLPIPluginConfiguration = createReactClass({
 		return {
 			config: {
 				glpi_url: 'http://url:port/glpi/apirest.php',
-				api_token: 'api token',
+				user_token: 'user token',
+				app_token: 'app token',
 				heap_size: 100,
 				ttl: 60,
 			},
@@ -87,18 +88,21 @@ const GLPIPluginConfiguration = createReactClass({
 	_test_connection() {
 		request
 			.get(this.state.config.glpi_url + "/initSession")
-			.set('Authorization', 'user_token ' + this.state.config.api_token)
+			.set('Authorization', 'user_token ' + this.state.config.user_token)
+			.set('App-Token', this.state.config.app_token)
 			.set('Content-Type', 'application/json')
 			.end((err, resp) => {
 				if (!err) {
 					UserNotification.success("Connection to "
-						+ this.state.config.glpi_url + " with token "
-						+ this.state.config.api_token + " succeed", "Succeed connection")
+						+ this.state.config.glpi_url + " with user token "
+						+ this.state.config.user_token + " and app token "
+						+ this.state.config.app_token +" succeed", "Succeed connection")
 				}
 				else {
 					UserNotification.error("Impossible to connect to "
-						+ this.state.config.glpi_url + " with token "
-						+ this.state.config.api_token + " and error: " + err, "Failed to connect");
+						+ this.state.config.glpi_url + " with user token "
+						+ this.state.config.user_token + " and app token "
+					    + this.state.config.app_token + " and error: " + err, "Failed to connect");
 				}
 			})
 	},
@@ -121,10 +125,17 @@ const GLPIPluginConfiguration = createReactClass({
 							: '[not set]'}
 					</dd>
 
-					<dt>API Token:</dt>
+					<dt>User Token:</dt>
 					<dd>
-						{this.state.config.api_token
-							? this.state.config.api_token
+						{this.state.config.user_token
+							? this.state.config.user_token
+							: '[not set]'}
+					</dd>
+
+					<dt>App Token:</dt>
+					<dd>
+						{this.state.config.app_token
+							? this.state.config.app_token
 							: '[not set]'}
 					</dd>
 
@@ -168,17 +179,31 @@ const GLPIPluginConfiguration = createReactClass({
 						/>
 
 						<Input
-							id="api-token"
+							id="user-token"
 							type="text"
-							label="GLPI API Token"
+							label="GLPI User API Token"
 							help={
 								<span>Note that this will be stored in plaintext.
 								Please consult the documentation for suggested rights to
 								assign to the underlying IAM user.</span>
 							}
-							name="api_token"
-							value={this.state.config.api_token}
-							onChange={this._onUpdate('api_token')}
+							name="user_token"
+							value={this.state.config.user_token}
+							onChange={this._onUpdate('user_token')}
+						/>
+
+						<Input
+							id="app-token"
+							type="text"
+							label="GLPI App Token"
+							help={
+								<span>Note that this will be stored in plaintext.
+								Please consult the documentation for suggested rights to
+								assign to the underlying IAM user.</span>
+							}
+							name="app_token"
+							value={this.state.config.app_token}
+							onChange={this._onUpdate('app_token')}
 						/>
 
 						<Input

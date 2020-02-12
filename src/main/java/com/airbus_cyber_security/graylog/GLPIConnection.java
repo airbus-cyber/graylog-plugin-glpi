@@ -27,7 +27,7 @@ public class GLPIConnection {
 		this.responseStream = responseStream;
 	}
 	
-	public void connectToURL(String url, String userToken) {
+	public void connectToURL(String url, String userToken, String appToken) {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
@@ -40,6 +40,7 @@ public class GLPIConnection {
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
+			connection.setRequestProperty("App-token", appToken);
 			
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -58,7 +59,7 @@ public class GLPIConnection {
 		}
 	}
 	
-	public void connectToURL(String url, String userToken, String sessionToken) {
+	public void connectToURL(String url, String userToken, String appToken, String sessionToken) {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
@@ -71,6 +72,7 @@ public class GLPIConnection {
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
+			connection.setRequestProperty("App-token", appToken);
 			connection.setRequestProperty("Session-Token", sessionToken);
 			
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
