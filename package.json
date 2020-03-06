@@ -18,7 +18,8 @@
   	"superagent": "^3.4.3"
   },
   "devDependencies": {
-    "graylog-web-plugin": "file:../graylog2-server/graylog2-web-interface/packages/graylog-web-plugin"
+    "graylog-web-plugin": "file:../graylog2-server/graylog2-web-interface/packages/graylog-web-plugin",
+    "reflux": "^6.4.1"
   },
   "resolutions": {
     "upath": "1.1.2"

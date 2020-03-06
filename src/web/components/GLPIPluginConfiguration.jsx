@@ -4,16 +4,22 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import Reflux from "reflux";
 import createReactClass from 'create-react-class';
 import { Button } from 'react-bootstrap';
 import { BootstrapModalForm, Input } from 'components/bootstrap';
 import { IfPermitted } from 'components/common';
 import ObjectUtils from 'util/ObjectUtils';
-import request from 'superagent';
-import UserNotification from 'util/UserNotification';
+import GLPIConfigurationsActions from '../config/GLPIConfigurationsActions';
+import GLPIConfigurationsStore from "../config/GLPIConfigurationsStore";
+import StoreProvider from 'injection/StoreProvider';
+
+const NodesStore = StoreProvider.getStore('Nodes');
 
 const GLPIPluginConfiguration = createReactClass({
 	displayName: 'GLPIPluginConfiguration',
+
+	mixins: [Reflux.connect(GLPIConfigurationsStore), Reflux.connect(NodesStore, 'nodes')],
 
 	propTypes: {
 		config: PropTypes.object,
@@ -85,22 +91,7 @@ const GLPIPluginConfiguration = createReactClass({
 	},
 
 	_test_connection() {
-		request
-			.get(this.state.config.glpi_url + "/initSession")
-			.set('Authorization', 'user_token ' + this.state.config.api_token)
-			.set('Content-Type', 'application/json')
-			.end((err, resp) => {
-				if (!err) {
-					UserNotification.success("Connection to "
-						+ this.state.config.glpi_url + " with token "
-						+ this.state.config.api_token + " succeed", "Succeed connection")
-				}
-				else {
-					UserNotification.error("Impossible to connect to "
-						+ this.state.config.glpi_url + " with token "
-						+ this.state.config.api_token + " and error: " + err, "Failed to connect");
-				}
-			})
+		GLPIConfigurationsActions.testConfig();
 	},
 
 	render() {

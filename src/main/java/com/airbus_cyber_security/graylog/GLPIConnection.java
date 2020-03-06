@@ -27,7 +27,7 @@ public class GLPIConnection {
 		this.responseStream = responseStream;
 	}
 	
-	public void connectToURL(String url, String userToken) {
+	public void connectToURL(String url, String userToken) throws Exception {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
@@ -52,9 +52,11 @@ public class GLPIConnection {
 			}
 		} catch (MalformedURLException e) {
 			log.error("Malformated URL: {}", url);
+			throw new MalformedURLException(e.getMessage());
 		} catch (IOException e) {
 			log.error("Error trying to connect to {}", url);
 			log.error(e.toString());
+			throw new IOException(e);
 		}
 	}
 	

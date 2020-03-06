@@ -7,6 +7,7 @@ package com.airbus_cyber_security.graylog;
 import java.util.Collections;
 import java.util.Set;
 
+import com.airbus_cyber_security.graylog.config.rest.GLPIPluginConfigurationResource;
 import org.graylog.plugins.pipelineprocessor.ast.functions.Function;
 import org.graylog2.plugin.PluginConfigBean;
 import org.graylog2.plugin.PluginModule;
@@ -30,6 +31,7 @@ public class GLPIModule extends PluginModule {
 	@Override
 	protected void configure() {
 		addMessageProcessorFunction(GLPI.NAME, GLPI.class);
+		addRestResource(GLPIPluginConfigurationResource.class);
 	}
 
 	protected void addMessageProcessorFunction(String name, Class<? extends Function<?>> functionClass) {

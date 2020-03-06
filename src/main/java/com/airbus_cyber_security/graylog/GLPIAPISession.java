@@ -375,8 +375,9 @@ public class GLPIAPISession {
 
 	public String getSessionTokenFromAPI(GLPIConnection connection) {
 		LOG.info("GLPI: Getting session token");
-		connection.connectToURL(this.getApiURL() + "/initSession", this.userToken);
-		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
+		try {
+			connection.connectToURL(this.getApiURL() + "/initSession", this.userToken);
+			JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()));
 			JsonObject jsonObject = reader.readObject();
 			sessionToken = jsonObject.get("session_token").toString().replaceAll("\"", "");
 			LOG.info("GLPI: Session token: {}", sessionToken);
