@@ -91,7 +91,7 @@ const GLPIPluginConfiguration = createReactClass({
 	},
 
 	_test_connection() {
-		GLPIConfigurationsActions.testConfig();
+		GLPIConfigurationsActions.testConfig(this.state.config);
 	},
 
 	render() {
@@ -130,6 +130,13 @@ const GLPIPluginConfiguration = createReactClass({
 					<dd>
 						{this.state.config.ttl
 							? this.state.config.ttl
+							: '[not set]'}
+					</dd>
+
+					<dt>Timeout:</dt>
+					<dd>
+						{this.state.config.timeout
+							? this.state.config.timeout
 							: '[not set]'}
 					</dd>
 				</dl>
@@ -194,6 +201,18 @@ const GLPIPluginConfiguration = createReactClass({
 							name="ttl"
 							value={this.state.config.ttl}
 							onChange={this._onUpdate('ttl')}
+						/>
+
+						<Input
+							id="timeout"
+							type="number"
+							label="Timeout (milliseconds)"
+							help={
+								<span>Timeout in milliseconds. Graylog service restart is needed after change.</span>
+							}
+							name="timeout"
+							value={this.state.config.timeout}
+							onChange={this._onUpdate('timeout')}
 						/>
 
 						<Button bsStyle="info" bsSize="s" onClick={this._test_connection}>Test</Button>

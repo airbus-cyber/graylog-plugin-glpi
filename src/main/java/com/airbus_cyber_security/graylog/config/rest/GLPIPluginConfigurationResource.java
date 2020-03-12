@@ -5,6 +5,7 @@ import com.airbus_cyber_security.graylog.config.GLPIPluginConfiguration;
 import com.codahale.metrics.annotation.Timed;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.graylog2.plugin.cluster.ClusterConfigService;
@@ -17,10 +18,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import java.io.StringReader;
@@ -48,16 +46,15 @@ public class GLPIPluginConfigurationResource extends RestResource implements Plu
         this.clusterConfigService = requireNonNull(clusterConfigService);
     }
 
-    @GET
+    @POST
     @Timed
     @ApiOperation(value = "Test glpi configuration")
     @RequiresPermissions({CLUSTER_CONFIG_ENTRY_READ})
-    public GLPIAuthResponse testConfig() {
-        GLPIPluginConfiguration config = clusterConfigService.getOrDefault(GLPIPluginConfiguration.class, GLPIPluginConfiguration.createDefault());
+    public GLPIAuthResponse testConfig(@ApiParam(name = "config", required = true) final GLPIPluginConfiguration config) {
         GLPIConnection connection = new GLPIConnection();
         String message;
         try {
-            connection.connectToURL(config.glpiUrl(), config.apiToken());
+            connection.connectToURL(config.glpiUrl(), config.apiToken(), config.timeout());
             JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()));
             JsonObject jsonObject = reader.readObject();
             if (jsonObject != null) {

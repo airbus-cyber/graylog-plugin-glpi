@@ -130,10 +130,12 @@ public class GLPIAPISessionTest {
 		GLPIConnection connection = mock(GLPIConnection.class);
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
+		int timeout = 500;
 		StringBuffer response = new StringBuffer();
 		response.append("{\"session_token\":\"o1gcobkuste902s3cflv05ovk5\"}");
 		session.setApiURL(url);
 		session.setUserToken(userToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -145,10 +147,12 @@ public class GLPIAPISessionTest {
 		GLPIConnection connection = mock(GLPIConnection.class);
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
+		int timeout = 500;
 		StringBuffer response = new StringBuffer();
 		response.append("{\"session_token_error\":\"o1gcobkuste902s3cflv05ovk5\"}");
 		session.setApiURL(url);
 		session.setUserToken(userToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -161,6 +165,7 @@ public class GLPIAPISessionTest {
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		String sessionToken = "hfuisfjoijoqdza,doia";
+		int timeout = 500;
 		String category = "Computer";
 		String search = "vwing.tuxtrooper.com";
 		String filter = "";
@@ -184,6 +189,7 @@ public class GLPIAPISessionTest {
 		session.setApiURL(url);
 		session.setUserToken(userToken);
 		session.setSessionToken(sessionToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -198,6 +204,7 @@ public class GLPIAPISessionTest {
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		String sessionToken = "hfuisfjoijoqdza,doia";
+		int timeout = 500;
 		String category = "Computer";
 		String search = "vwing.tuxtrooper.com";
 		String filter = "";
@@ -210,6 +217,7 @@ public class GLPIAPISessionTest {
 		session.setApiURL(url);
 		session.setUserToken(userToken);
 		session.setSessionToken(sessionToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -224,6 +232,7 @@ public class GLPIAPISessionTest {
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		String sessionToken = "hfuisfjoijoqdza,doia";
+		int timeout = 500;
 		String category = "Software";
 		String search = "apache";
 		String filter = "";
@@ -243,6 +252,7 @@ public class GLPIAPISessionTest {
 		session.setApiURL(url);
 		session.setUserToken(userToken);
 		session.setSessionToken(sessionToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -257,6 +267,7 @@ public class GLPIAPISessionTest {
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		String sessionToken = "hfuisfjoijoqdza,doia";
+		int timeout = 500;
 		String category = "User";
 		String search = "apache";
 		String filter = "";
@@ -276,6 +287,7 @@ public class GLPIAPISessionTest {
 		session.setApiURL(url);
 		session.setUserToken(userToken);
 		session.setSessionToken(sessionToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 
@@ -290,6 +302,7 @@ public class GLPIAPISessionTest {
 		String url = "http://glpi/api";
 		String userToken = "lfljfsfjshufhoqhfoihqushfoiu";
 		String sessionToken = "hfuisfjoijoqdza,doia";
+		int timeout = 500;
 		String category = "Unknown";
 		String search = "doijza";
 		String filter = "";
@@ -301,6 +314,7 @@ public class GLPIAPISessionTest {
 		session.setApiURL(url);
 		session.setUserToken(userToken);
 		session.setSessionToken(sessionToken);
+		session.setTimeout(timeout);
 
 		when(connection.getResponseStream()).thenReturn(response);
 

@@ -8,8 +8,14 @@ const GLPIConfigurationsStore = Reflux.createStore({
     listenables: [GLPIConfigurationsActions],
     sourceUrl: '/plugins/com.airbus_cyber_security.graylog/glpi/config',
 
-    testConfig() {
-        const promise = fetch('GET', URLUtils.qualifyUrl(this.sourceUrl))
+    testConfig(config) {
+        const request = {glpi_url: config.glpi_url,
+            api_token: config.api_token,
+            heap_size: config.heap_size,
+            ttl: config.ttl,
+            timeout: config.timeout,
+        };
+        const promise = fetch('GET', URLUtils.qualifyUrl(this.sourceUrl), request)
             .then(
                 data => {
                     if (data.status_code == 0) {

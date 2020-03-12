@@ -27,19 +27,20 @@ public class GLPIConnection {
 		this.responseStream = responseStream;
 	}
 	
-	public void connectToURL(String url, String userToken) throws Exception {
+	public void connectToURL(String url, String userToken, int timeout) throws Exception {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
 		try {
-			log.info("GLPI: Connecting to URL {} with user token {}", url, userToken);
+			log.info("GLPI: Connecting to URL {} with user token {} adn timeout {}", url, userToken, timeout);
 			urlForGetRequest = new URL(url);
 			connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
+			connection.setConnectTimeout(timeout);
 			
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -60,13 +61,13 @@ public class GLPIConnection {
 		}
 	}
 	
-	public void connectToURL(String url, String userToken, String sessionToken) {
+	public void connectToURL(String url, String userToken, String sessionToken, int timeout) {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
 		try {
-			log.info("GLPI: Connecting to URL {} with user token {} and session token {}", url, userToken, sessionToken);
+			log.info("GLPI: Connecting to URL {} with user token {}, session token {} and timeout {}", url, userToken, sessionToken, timeout);
 			urlForGetRequest = new URL(url);
 			connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
@@ -74,6 +75,7 @@ public class GLPIConnection {
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
 			connection.setRequestProperty("Session-Token", sessionToken);
+			connection.setConnectTimeout(timeout);
 			
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));

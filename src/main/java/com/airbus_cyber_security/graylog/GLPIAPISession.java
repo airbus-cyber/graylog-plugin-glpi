@@ -23,6 +23,7 @@ public class GLPIAPISession {
 	private String apiURL;
 	private String userToken;
 	private String sessionToken;
+	private int timeout;
 	Logger LOG = LoggerFactory.getLogger(Function.class);
 
 	private static Map<String, String> userTranslationMatrix = new HashMap<>();
@@ -352,6 +353,15 @@ public class GLPIAPISession {
 		this.apiURL = apiURL;
 	}
 
+	public int getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
+
 	public Map<String, String> mappingField(Map<String, String> map, Map<String, String> translation, String filter) {
 		String[] filterArray = filter.toLowerCase().split(",");
 		Map<String, String> mappedMap = new HashMap<>(map.size());
@@ -376,7 +386,7 @@ public class GLPIAPISession {
 	public String getSessionTokenFromAPI(GLPIConnection connection) {
 		LOG.info("GLPI: Getting session token");
 		try {
-			connection.connectToURL(this.getApiURL() + "/initSession", this.userToken);
+			connection.connectToURL(this.getApiURL() + "/initSession", this.userToken, this.timeout);
 			JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()));
 			JsonObject jsonObject = reader.readObject();
 			sessionToken = jsonObject.get("session_token").toString().replaceAll("\"", "");
@@ -396,7 +406,7 @@ public class GLPIAPISession {
 				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
 
 		LOG.info("GLPI: request URL: {}", searchURL);
-		connection.connectToURL(searchURL, this.userToken, this.sessionToken);
+		connection.connectToURL(searchURL, this.userToken, this.sessionToken, this.timeout);
 
 		// Interpret JSON and put it in Map
 		try (JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()))) {
@@ -431,6 +441,6 @@ public class GLPIAPISession {
 
 	public void closeSession(GLPIConnection connection) {
 		LOG.info("GLPI: closing session");
-		connection.connectToURL(this.getApiURL() + "/killSession", this.userToken, this.sessionToken);
+		connection.connectToURL(this.getApiURL() + "/killSession", this.userToken, this.sessionToken, this.timeout);
 	}
 }
