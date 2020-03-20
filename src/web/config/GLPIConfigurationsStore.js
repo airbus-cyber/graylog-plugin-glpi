@@ -15,7 +15,7 @@ const GLPIConfigurationsStore = Reflux.createStore({
             ttl: config.ttl,
             timeout: config.timeout,
         };
-        const promise = fetch('GET', URLUtils.qualifyUrl(this.sourceUrl), request)
+        const promise = fetch('POST', URLUtils.qualifyUrl(this.sourceUrl), request)
             .then(
                 data => {
                     if (data.status_code == 0) {

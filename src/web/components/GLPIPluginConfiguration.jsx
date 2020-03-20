@@ -33,6 +33,7 @@ const GLPIPluginConfiguration = createReactClass({
 				api_token: 'api token',
 				heap_size: 100,
 				ttl: 60,
+				timeout: 500,
 			},
 		};
 	},
@@ -208,7 +209,7 @@ const GLPIPluginConfiguration = createReactClass({
 							type="number"
 							label="Timeout (milliseconds)"
 							help={
-								<span>Timeout in milliseconds. Graylog service restart is needed after change.</span>
+								<span>Timeout in milliseconds.</span>
 							}
 							name="timeout"
 							value={this.state.config.timeout}
