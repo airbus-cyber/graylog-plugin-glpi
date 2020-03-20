@@ -53,21 +53,22 @@ public class GLPIPluginConfigurationResource extends RestResource implements Plu
     public GLPIAuthResponse testConfig(@ApiParam(name = "config", required = true) final GLPIPluginConfiguration config) {
         GLPIConnection connection = new GLPIConnection();
         String message;
+        String url = config.glpiUrl() + "/initSession";
         try {
-            connection.connectToURL(config.glpiUrl(), config.apiToken(), config.timeout());
+            connection.connectToURL(url, config.apiToken(), config.timeout());
             JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()));
             JsonObject jsonObject = reader.readObject();
             if (jsonObject != null) {
-                message = "Connection to " + config.glpiUrl() + " with token " + config.apiToken() + " succeed. Succeed connection";
+                message = "Connection to " + url + " with token " + config.apiToken() + " succeed. Succeed connection";
                 return new GLPIAuthResponse(STATUS_OK, message);
             }
             else {
-                message = "Connection to " + config.glpiUrl() + " with token " + config.apiToken() + " failed. Failed to connect";
+                message = "Connection to " + url + " with token " + config.apiToken() + " failed. Failed to connect";
                 return new GLPIAuthResponse(STATUS_KO, message);
             }
         } catch (Exception e) {
             log.error("GLPI: Impossible to parse {} into json", connection.getResponseStream());
-            message = "Impossible to connect to " + config.glpiUrl() + " with token " + config.apiToken() + " and error: " + e.toString() + " Failed to connect";
+            message = "Impossible to connect to " + url + " with token " + config.apiToken() + " and error: " + e.toString() + " Failed to connect";
             return new GLPIAuthResponse(STATUS_KO, message);
         }
     }
