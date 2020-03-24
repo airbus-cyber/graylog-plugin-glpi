@@ -61,7 +61,7 @@ public class GLPITest {
 
 		functionArgs = mock(FunctionArgs.class);
 		evaluationContext = mock(EvaluationContext.class);
-		config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token", 500);
+		config = new GLPIPluginConfigurationTest("http://fakeurl.com", "fake_token", "fake_app-token", 500);
 	}
 
 	@After

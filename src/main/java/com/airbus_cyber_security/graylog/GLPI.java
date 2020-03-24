@@ -99,9 +99,10 @@ public class GLPI extends AbstractFunction<String> {
 			log.info("GLPI: query {} is into cache with response {}", query, myCache.get(query));
 			return myCache.get(query);
 		} else {
-			log.info("GLPI: API URL is {} with user token {}", config.glpiUrl(), config.apiToken());
+			log.info("GLPI: API URL is {} with user token {} and with app token {}", config.glpiUrl(), config.userToken(), config.appToken());
 			session.setApiURL(config.glpiUrl());
-			session.setUserToken(config.apiToken());
+			session.setUserToken(config.userToken());
+			session.setAppToken(config.appToken());
 			session.setTimeout(config.timeout());
 
 			sessionToken = session.getSessionTokenFromAPI(connection);

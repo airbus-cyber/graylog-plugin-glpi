@@ -27,21 +27,22 @@ public class GLPIConnection {
 		this.responseStream = responseStream;
 	}
 	
-	public void connectToURL(String url, String userToken, int timeout) throws Exception {
+	public void connectToURL(String url, String userToken, String appToken, int timeout) {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
 		try {
-			log.info("GLPI: Connecting to URL {} with user token {} adn timeout {}", url, userToken, timeout);
+			log.info("GLPI: Connecting to URL {} with user token {}", url, userToken);
 			urlForGetRequest = new URL(url);
 			connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
+			connection.setRequestProperty("App-token", appToken);
 			connection.setConnectTimeout(timeout);
-			
+
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				this.responseStream = new StringBuffer();
@@ -61,22 +62,23 @@ public class GLPIConnection {
 		}
 	}
 	
-	public void connectToURL(String url, String userToken, String sessionToken, int timeout) {
+	public void connectToURL(String url, String userToken, String appToken, String sessionToken, int timeout) {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
 		try {
-			log.info("GLPI: Connecting to URL {} with user token {}, session token {} and timeout {}", url, userToken, sessionToken, timeout);
+			log.info("GLPI: Connecting to URL {} with user token {} and app token {}, session token {} and timeout {}", url, userToken, appToken, sessionToken, timeout);
 			urlForGetRequest = new URL(url);
 			connection = (HttpURLConnection) urlForGetRequest.openConnection();
 
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Authorization", "user_token " + userToken);
+			connection.setRequestProperty("App-token", appToken);
 			connection.setRequestProperty("Session-Token", sessionToken);
 			connection.setConnectTimeout(timeout);
-			
+
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 				this.responseStream = new StringBuffer();
