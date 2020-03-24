@@ -17,7 +17,8 @@ Restart `graylog-server` and you are done.
 
 In the configuration tab of Graylog, you will have to provide:
   * GLPI API URL
-  * GLPI API Token
+  * GLPI User API Token
+  * GLPI APP Token
   * Cache Heap Size
   * Cache TTL
  
