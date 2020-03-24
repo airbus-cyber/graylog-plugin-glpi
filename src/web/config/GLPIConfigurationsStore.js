@@ -10,7 +10,8 @@ const GLPIConfigurationsStore = Reflux.createStore({
 
     testConfig(config) {
         const request = {glpi_url: config.glpi_url,
-            api_token: config.api_token,
+            user_token: config.user_token,
+            app_token: config.app_token,
             heap_size: config.heap_size,
             ttl: config.ttl,
             timeout: config.timeout,

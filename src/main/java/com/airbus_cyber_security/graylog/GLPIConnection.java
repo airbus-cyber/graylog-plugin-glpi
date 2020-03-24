@@ -23,11 +23,7 @@ public class GLPIConnection {
 		return responseStream;
 	}
 
-	public void setResponseStream(StringBuffer responseStream) {
-		this.responseStream = responseStream;
-	}
-	
-	public void connectToURL(String url, String userToken, String appToken, int timeout) {
+	public void connectToURL(String url, String userToken, String appToken, int timeout) throws IOException {
 		String readLine = null;
 		URL urlForGetRequest;
 		HttpURLConnection connection;

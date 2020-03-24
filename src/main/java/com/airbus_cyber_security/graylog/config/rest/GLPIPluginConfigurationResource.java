@@ -33,18 +33,10 @@ import static org.graylog2.shared.security.RestPermissions.CLUSTER_CONFIG_ENTRY_
 @Produces(MediaType.APPLICATION_JSON)
 public class GLPIPluginConfigurationResource extends RestResource implements PluginRestResource {
 
-    private final ClusterConfigService clusterConfigService;
-
     private static final int STATUS_OK = 0;
-
     private static final int STATUS_KO = -1;
 
     Logger log = LoggerFactory.getLogger(GLPIPluginConfigurationResource.class);
-
-    @Inject
-    public GLPIPluginConfigurationResource(final ClusterConfigService clusterConfigService) {
-        this.clusterConfigService = requireNonNull(clusterConfigService);
-    }
 
     @POST
     @Timed
@@ -55,20 +47,20 @@ public class GLPIPluginConfigurationResource extends RestResource implements Plu
         String message;
         String url = config.glpiUrl() + "/initSession";
         try {
-            connection.connectToURL(url, config.apiToken(), config.timeout());
+            connection.connectToURL(url, config.userToken(), config.appToken(), config.timeout());
             JsonReader reader = Json.createReader(new StringReader(connection.getResponseStream().toString()));
             JsonObject jsonObject = reader.readObject();
             if (jsonObject != null) {
-                message = "Connection to " + url + " with token " + config.apiToken() + " succeed. Succeed connection";
+                message = "Connection to " + url + " with user token " + config.userToken() + " and app token " + config.appToken() + " succeed. Succeed connection";
                 return new GLPIAuthResponse(STATUS_OK, message);
             }
             else {
-                message = "Connection to " + url + " with token " + config.apiToken() + " failed. Failed to connect";
+                message = "Connection to " + url + " with token " + config.userToken() + " and app token " + config.appToken() + " failed. Failed to connect";
                 return new GLPIAuthResponse(STATUS_KO, message);
             }
         } catch (Exception e) {
             log.error("GLPI: Impossible to parse {} into json", connection.getResponseStream());
-            message = "Impossible to connect to " + url + " with token " + config.apiToken() + " and error: " + e.toString() + " Failed to connect";
+            message = "Impossible to connect to " + url + " with token " + config.userToken() + " and app token " + config.appToken() + " and error: " + e.toString() + " Failed to connect";
             return new GLPIAuthResponse(STATUS_KO, message);
         }
     }

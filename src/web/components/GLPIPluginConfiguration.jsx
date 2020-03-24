@@ -177,7 +177,7 @@ const GLPIPluginConfiguration = createReactClass({
 						<Input
 							id="api-token"
 							type="text"
-							label="GLPI API Token"
+							label="GLPI User API Token"
 							help={
 								<span>Note that this will be stored in plaintext.
 								Please consult the documentation for suggested rights to

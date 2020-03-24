@@ -35,7 +35,7 @@ public abstract class GLPIPluginConfiguration {
 												 @JsonProperty("user_token") String userToken,
 												 @JsonProperty("app_token") String appToken,
 												 @JsonProperty("heap_size") int heapSize,
-												 @JsonProperty("ttl") int ttl
+												 @JsonProperty("ttl") int ttl,
 												 @JsonProperty("timeout") int timeout) {
 		if(heapSize <= 0)
 			heapSize = 100;

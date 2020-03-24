@@ -8,6 +8,7 @@ public class GLPIPluginConfigurationTest extends com.airbus_cyber_security.grayl
 	private String glpiURL;
 	private String userToken;
 	private String appToken;
+	private int timeout;
 	
 	public String getGlpiURL() {
 		return glpiURL;
