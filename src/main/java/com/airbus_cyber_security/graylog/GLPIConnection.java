@@ -7,6 +7,7 @@ package com.airbus_cyber_security.graylog;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,7 +25,7 @@ public class GLPIConnection {
 	}
 
 	public void connectToURL(String url, String userToken, String appToken, int timeout) throws IOException {
-		String readLine = null;
+		String readLine;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
@@ -40,7 +41,7 @@ public class GLPIConnection {
 			connection.setConnectTimeout(timeout);
 
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
 				this.responseStream = new StringBuffer();
 				while ((readLine = in.readLine()) != null) {
 					this.responseStream.append(readLine);
@@ -59,7 +60,7 @@ public class GLPIConnection {
 	}
 	
 	public void connectToURL(String url, String userToken, String appToken, String sessionToken, int timeout) {
-		String readLine = null;
+		String readLine;
 		URL urlForGetRequest;
 		HttpURLConnection connection;
 		
@@ -76,7 +77,7 @@ public class GLPIConnection {
 			connection.setConnectTimeout(timeout);
 
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
 				this.responseStream = new StringBuffer();
 				while ((readLine = in.readLine()) != null) {
 					this.responseStream.append(readLine);
