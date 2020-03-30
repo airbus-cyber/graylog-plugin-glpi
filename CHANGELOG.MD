@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0](https://github.com/airbus-cyber/graylog-plugin-glpi/tree/1.3.0) (2020-03-30)
+
+* Add compatibility with Graylog 3.2
+
 ## [1.3.0](https://github.com/airbus-cyber/graylog-plugin-glpi/tree/1.3.0) (2020-03-24)
 
 * Add App token authentication
