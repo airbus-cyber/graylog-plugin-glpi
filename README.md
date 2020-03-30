@@ -5,7 +5,7 @@
 [![GitHub Release](https://img.shields.io/badge/release-v1.4.0-blue.svg)](https://github.com/airbus-cyber/graylog-plugin-glpi/releases)
 
 
-##Version Compatibility
+## Version Compatibility
 
 |  Plugin Version | Graylog Version | 
 | --------------- | --------------- | 
