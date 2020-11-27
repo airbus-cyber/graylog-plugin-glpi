@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
@@ -34,6 +35,7 @@ public class GLPI extends AbstractFunction<String> {
 	private static final String QUERY = "query";
 	private static final String TYPE = "type";
 	private static final String FILTER = "filter";
+	private static final String FIELD = "field";
 
 	private ClusterConfigService clusterConfig;
 	private GLPIAPISession session = new GLPIAPISession();
@@ -49,13 +51,20 @@ public class GLPI extends AbstractFunction<String> {
 	private ParameterDescriptor<String, String> filterParam = ParameterDescriptor.string(FILTER)
 			.description("The fields list (comma-separated) you want to be returned").build();
 
+	private ParameterDescriptor<String, String> fieldParam = ParameterDescriptor.string(FIELD)
+			.description("The type of the field you want to submit into GLPI API. Can be Name, ID, IP, ...")
+			.build();
+
 	public GLPI() {
 		super();
 	}
 
 	public GLPI(ClusterConfigService clusterConfig, GLPIAPISession session, GLPIConnection connection,
-			CacheManager cacheManager, ParameterDescriptor<String, String> queryParam,
-			ParameterDescriptor<String, String> typeParam, ParameterDescriptor<String, String> filterParam) {
+				CacheManager cacheManager,
+				ParameterDescriptor<String, String> queryParam,
+				ParameterDescriptor<String, String> typeParam,
+				ParameterDescriptor<String, String> filterParam,
+				ParameterDescriptor<String, String> fieldParam) {
 		this.clusterConfig = clusterConfig;
 		this.session = session;
 		this.connection = connection;
@@ -63,6 +72,7 @@ public class GLPI extends AbstractFunction<String> {
 		this.queryParam = queryParam;
 		this.typeParam = typeParam;
 		this.filterParam = filterParam;
+		this.fieldParam = fieldParam;
 	}
 
 	@Inject
@@ -84,6 +94,7 @@ public class GLPI extends AbstractFunction<String> {
 		String query = queryParam.required(functionArgs, evaluationContext);
 		String type = typeParam.required(functionArgs, evaluationContext);
 		String filter = filterParam.required(functionArgs, evaluationContext);
+		String fieldType = fieldParam.optional(functionArgs, evaluationContext).orElse(null);
 		String sessionToken;
 		String responseStr;
 		Map<String, String> response = new HashMap<>();
@@ -114,7 +125,7 @@ public class GLPI extends AbstractFunction<String> {
 			}
 
 			log.info("GLPI: Searching into {} for param: {} with filter {}", type, query, filter);
-			response.putAll(session.getSearchFromAPI(connection, type, query, filter));
+			response.putAll(session.getSearchFromAPI(connection, type, query, filter, fieldType));
 			log.info("GLPI: Filtered API response {}", response);
 			session.closeSession(connection);
 			if (response.isEmpty()) {
@@ -145,6 +156,6 @@ public class GLPI extends AbstractFunction<String> {
 	public FunctionDescriptor<String> descriptor() {
 		return FunctionDescriptor.<String>builder().name(NAME)
 				.description("Returns key=value string of field from the filter return by the GLPI API")
-				.params(queryParam, typeParam, filterParam).returnType(String.class).build();
+				.params(queryParam, typeParam, filterParam, fieldParam).returnType(String.class).build();
 	}
 }

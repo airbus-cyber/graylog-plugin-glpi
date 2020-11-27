@@ -39,6 +39,7 @@ public class GLPITest {
 	ParameterDescriptor<String, String> queryParam;
 	ParameterDescriptor<String, String> typeParam;
 	ParameterDescriptor<String, String> filterParam;
+	ParameterDescriptor<String, String> fieldParam;
 	FunctionArgs functionArgs;
 	EvaluationContext evaluationContext;
 	GLPIPluginConfigurationTest config;
@@ -49,6 +50,7 @@ public class GLPITest {
 		queryParam = mock(ParameterDescriptor.class);
 		typeParam = mock(ParameterDescriptor.class);
 		filterParam = mock(ParameterDescriptor.class);
+		fieldParam = mock(ParameterDescriptor.class);
 
 		session = mock(GLPIAPISession.class);
 		connection = mock(GLPIConnection.class);
@@ -57,7 +59,7 @@ public class GLPITest {
 						.newCacheConfigurationBuilder(String.class, String.class, ResourcePoolsBuilder.heap(100))
 						.withExpiry(ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofSeconds(60))))
 				.build(true);
-		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam);
+		plugin = new GLPI(clusterConfig, session, connection, cacheManager, queryParam, typeParam, filterParam, fieldParam);
 
 		functionArgs = mock(FunctionArgs.class);
 		evaluationContext = mock(EvaluationContext.class);
@@ -96,7 +98,7 @@ public class GLPITest {
 
 		when(connection.getResponseStream()).thenReturn(tokenBuffer);
 		when(session.getSessionTokenFromAPI(any(GLPIConnection.class))).thenReturn("fake_session_token");
-		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter)).thenReturn(response);
+		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter, null)).thenReturn(response);
 
 		String actual = plugin.evaluate(functionArgs, evaluationContext);
 		assertEquals(expected, actual);
@@ -184,7 +186,7 @@ public class GLPITest {
 
 		when(connection.getResponseStream()).thenReturn(tokenBuffer);
 		when(session.getSessionTokenFromAPI(any(GLPIConnection.class))).thenReturn("fake_session_token");
-		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter)).thenReturn(response);
+		when(session.getSearchFromAPI(connection, responseType, responseQuery, responseFilter, null)).thenReturn(response);
 
 		String actual = plugin.evaluate(functionArgs, evaluationContext);
 

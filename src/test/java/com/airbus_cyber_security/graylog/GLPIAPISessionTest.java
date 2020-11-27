@@ -193,7 +193,7 @@ public class GLPIAPISessionTest {
 
 		when(connection.getResponseStream()).thenReturn(response);
 
-		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter);
+		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter, null);
 
 		assertEquals(expected, actual);
 	}
@@ -221,7 +221,7 @@ public class GLPIAPISessionTest {
 
 		when(connection.getResponseStream()).thenReturn(response);
 
-		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter);
+		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter, null);
 
 		assertEquals(expected, actual);
 	}
@@ -256,7 +256,7 @@ public class GLPIAPISessionTest {
 
 		when(connection.getResponseStream()).thenReturn(response);
 
-		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter);
+		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter, null);
 
 		assertEquals(expected, actual);
 	}
@@ -291,7 +291,7 @@ public class GLPIAPISessionTest {
 
 		when(connection.getResponseStream()).thenReturn(response);
 
-		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter);
+		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter, null);
 
 		assertEquals(expected, actual);
 	}
@@ -318,8 +318,9 @@ public class GLPIAPISessionTest {
 
 		when(connection.getResponseStream()).thenReturn(response);
 
-		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter);
+		Map<String, String> actual = session.getSearchFromAPI(connection, category, search, filter, null);
 
 		assertEquals(expected, actual);
 	}
+
 }

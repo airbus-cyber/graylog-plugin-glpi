@@ -399,12 +399,37 @@ public class GLPIAPISession {
 		return "";
 	}
 
-	public Map<String, String> getSearchFromAPI(GLPIConnection connection, String category, String search, String filter) {
+
+
+	public Map<String, String> getSearchFromAPI(GLPIConnection connection, String category,
+												String search, String filter, String fieldType) {
 		Map<String, String> resultList = new HashMap<>();
 		Map<String, String> blankList = new HashMap<>();
 		Map<String, String> translationMatrix = null;
-		String searchURL = this.getApiURL() + "/search/" + category
-				+ "?criteria[0][field]=1&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
+
+		switch (category) {
+			case "Computer":
+				translationMatrix = computerTranslationMatrix;
+				break;
+			case "Software":
+				translationMatrix = softwareTranslationMatrix;
+				break;
+			case "User":
+				translationMatrix = userTranslationMatrix;
+				break;
+			default:
+				LOG.warn("GLPI: Unsupported category: {}", category);
+				return blankList;
+		}
+
+		LOG.info("GLPI: translation matrix used {}", category);
+		String fieldTypeID="1";
+		if(fieldType != null && !fieldType.isEmpty()){
+			fieldTypeID = translationMatrix.entrySet().stream().filter(entry -> fieldType.equals(entry.getValue())).map(Map.Entry::getKey).findFirst().get();
+		}
+
+		String searchURL = this.getApiURL() + "/search/" + category	+ "?criteria[0][field]=" + fieldTypeID
+				+ "&criteria[0][searchtype]=contains&criteria[0][value]=" + search;
 
 		LOG.info("GLPI: request URL: {}", searchURL);
 		connection.connectToURL(searchURL, this.userToken, this.appToken, this.sessionToken, this.timeout);
@@ -422,21 +447,6 @@ public class GLPIAPISession {
 			return blankList;
 		}
 
-		switch (category) {
-		case "Computer":
-			translationMatrix = computerTranslationMatrix;
-			break;
-		case "Software":
-			translationMatrix = softwareTranslationMatrix;
-			break;
-		case "User":
-			translationMatrix = userTranslationMatrix;
-			break;
-		default:
-			LOG.warn("GLPI: Unsupported category: {}", category);
-			return blankList;
-		}
-		LOG.info("GLPI: translation matrix used {}", category);
 		return mappingField(resultList, translationMatrix, filter);
 	}
 
